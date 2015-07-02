@@ -1,11 +1,11 @@
 ---
 layout: page
 title: (println "Welcome")
-tagline: As you would have noticed, I love functional
+tagline: State is the root of all evil
 ---
 {% include JB/setup %}
 
-Here's a sample "posts list".
+Posts:
 
 <ul class="posts">
   {% for post in site.posts %}
