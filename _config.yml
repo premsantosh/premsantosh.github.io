@@ -126,4 +126,6 @@ JB :
   # and include your custom code. Your custom file must be defined at:
   #   ./_includes/custom/[HELPER]
   # where [HELPER] is the name of the helper you are overriding.
+  #
+  excerpt_separator : "" # Workaround for http://blog.slaks.net/2013-08-09/jekyll-tag-was-never-closed
   
