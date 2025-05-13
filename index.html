@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prem Santosh</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-p1CnFMZ0WHV9IpwvJqJo7v1dqU2E4Xt5pM5u6nPqyozqLwS+3xz3Bb2YONHi4TwVdL0yZKqtwL9KzS1jT+6W1g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #e8d8cb;
+      color: #3d4435;
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1a1a1a;
+      color: #fff;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      font-size: 1.75rem;
+    }
+
+    header h1 a {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    nav a {
+      margin-left: 1rem;
+      color: #aaa;
+      text-decoration: none;
+    }
+
+    nav a:hover {
+      color: #fff;
+    }
+
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .animated-welcome {
+      font-size: 2rem;
+      font-weight: 600;
+      height: 2.5em;
+      position: relative;
+    }
+
+    .welcome-text {
+      opacity: 0;
+      position: absolute;
+      transition: opacity 1s ease-in-out;
+    }
+
+    .welcome-text.active {
+      opacity: 1;
+    }
+
+    footer {
+      background: #1a1a1a;
+      color: #ccc;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    footer a {
+      color: #ccc;
+      margin: 0 0.5rem;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: #fff;
+    }
+
+    .social-icons a {
+      margin: 0 0.5rem;
+      font-size: 1.5rem;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1><a href="index.html">Build // Break // Blog</a></h1>
+  <nav>
+    <a href="musings.html">Miscellaneous Musings</a>
+    <a href="briefs.html">Research Briefs</a>
+  </nav>
+</header>
+
+<main>
+  <div class="animated-welcome">
+    <div class="welcome-text active">Welcome</div>
+    <div class="welcome-text">स्वागत (<em>Swāgat</em>)</div>
+    <div class="welcome-text">எழுத்துகள் (<em>Ezhu-thu-kkaᬽ</em>)</div>
+    <div class="welcome-text">స్వాగతం (<em>Swāgataṁ</em>)</div>
+    <div class="welcome-text">Bienvenido</div>
+  </div>
+  <p>This is my digital home. Here, I share thoughts, code, and concise research takes.</p>
+</main>
+
+<footer>
+  <p>Contact: <a href="mailto:youremail@example.com">youremail@example.com</a></p>
+  <div class="social-icons">
+    <a href="https://github.com/yourusername" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+    <a href="https://linkedin.com/in/yourusername" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+  </div>
+</footer>
+
+<script>
+    const texts = document.querySelectorAll('.welcome-text');
+    let index = 0;
+    setInterval(() => {
+      texts[index].classList.remove('active');
+      index = (index + 1) % texts.length;
+      texts[index].classList.add('active');
+    }, 3000);
+  </script>
+</body>
+</html>
