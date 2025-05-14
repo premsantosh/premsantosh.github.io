@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Research Briefs</title>
+    <title>Miscellaneous Musings</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
@@ -12,6 +12,9 @@
       background-color: #e8d8cb;
       color: #3d4435;
       margin: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
     header, footer {
       background: #1a1a1a;
@@ -20,35 +23,62 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
     }
     header h1 a {
       color: #fff;
       text-decoration: none;
+      font-size: 1.75rem;
     }
     nav a {
+      margin-left: 1rem;
       color: #aaa;
       text-decoration: none;
-      margin-left: 1rem;
     }
     nav a:hover {
       color: #fff;
     }
     main {
+      flex: 1;
+      padding: 2rem;
       max-width: 800px;
       margin: auto;
-      padding: 2rem;
+    }
+    main h2 {
+      margin-bottom: 1.5rem;
     }
     article {
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
     }
-    h2 {
-      margin-bottom: 0.5rem;
+    article h3 {
+      cursor: pointer;
     }
-    .social-icons a {
+    .preview {
+      opacity: 0.6;
+    }
+    .full-content {
+      display: none;
+      margin-top: 0.5rem;
+    }
+    footer a {
       color: #ccc;
       margin: 0 0.5rem;
-      font-size: 1.5rem;
       text-decoration: none;
+    }
+    footer a:hover {
+      color: #fff;
+    }
+    .social-icons a {
+      margin: 0 0.5rem;
+      font-size: 1.5rem;
+      display: inline-block;
+      color: #ccc;
+    }
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
@@ -56,28 +86,45 @@
 <header>
     <h1><a href="index.html">Build // Break // Blog</a></h1>
     <nav>
-        <a href="musings.html">Miscellaneous Musings</a>
+        <a href="briefs.html">Research Briefs</a>
     </nav>
 </header>
 
 <main>
     <h2>Research Briefs</h2>
     <article>
-        <h3>Paper: Transformers in Practice</h3>
-        <p>A brief summary of key takeaways from a recent paper on transformers and attention mechanisms.</p>
+        <h3 onclick="toggleArticle(this)">📘 A Deep Dive into Vector Search</h3>
+        <div class="preview">What makes approximate nearest neighbors...</div>
+        <div class="full-content">
+            <p>What makes approximate nearest neighbors work so well in practice? Here's a short primer with technical depth and practical insight.</p>
+        </div>
     </article>
     <article>
-        <h3>Trends in Vector Databases</h3>
-        <p>What’s evolving in the world of vector search? Here's a quick digest.</p>
+        <h3 onclick="toggleArticle(this)">📄 LLM Performance Benchmarks</h3>
+        <div class="preview">A skim of recent research comparing...</div>
+        <div class="full-content">
+            <p>A skim of recent research comparing LLMs on practical tasks. We review strengths, blind spots, and fine-tuning strategies.</p>
+        </div>
     </article>
 </main>
 
+
 <footer>
-    <div>Contact: <a href="mailto:youremail@example.com">youremail@example.com</a></div>
+    <p>Contact: <a href="mailto:premsantosh@duck.com">youremail@example.com</a></p>
     <div class="social-icons">
-        <a href="https://github.com/yourusername" target="_blank"><i class="fab fa-github"></i></a>
-        <a href="https://linkedin.com/in/yourusername" target="_blank"><i class="fab fa-linkedin"></i></a>
+        <a href="https://github.com/premsantosh" target="_blank"><i class="fab fa-github"></i></a>
+        <a href="https://linkedin.com/in/premsantosh" target="_blank"><i class="fab fa-linkedin"></i></a>
     </div>
 </footer>
+
+<script>
+    function toggleArticle(header) {
+      const preview = header.nextElementSibling;
+      const full = preview.nextElementSibling;
+      const isVisible = full.style.display === 'block';
+      full.style.display = isVisible ? 'none' : 'block';
+      preview.style.display = isVisible ? 'block' : 'none';
+    }
+  </script>
 </body>
 </html>

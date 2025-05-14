@@ -12,6 +12,9 @@
       background-color: #e8d8cb;
       color: #3d4435;
       margin: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
     header, footer {
       background: #1a1a1a;
@@ -20,35 +23,62 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
     }
     header h1 a {
       color: #fff;
       text-decoration: none;
+      font-size: 1.75rem;
     }
     nav a {
+      margin-left: 1rem;
       color: #aaa;
       text-decoration: none;
-      margin-left: 1rem;
     }
     nav a:hover {
       color: #fff;
     }
     main {
+      flex: 1;
+      padding: 2rem;
       max-width: 800px;
       margin: auto;
-      padding: 2rem;
+    }
+    main h2 {
+      margin-bottom: 1.5rem;
     }
     article {
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
     }
-    h2 {
-      margin-bottom: 0.5rem;
+    article h3 {
+      cursor: pointer;
     }
-    .social-icons a {
+    .preview {
+      opacity: 0.6;
+    }
+    .full-content {
+      display: none;
+      margin-top: 0.5rem;
+    }
+    footer a {
       color: #ccc;
       margin: 0 0.5rem;
-      font-size: 1.5rem;
       text-decoration: none;
+    }
+    footer a:hover {
+      color: #fff;
+    }
+    .social-icons a {
+      margin: 0 0.5rem;
+      font-size: 1.5rem;
+      display: inline-block;
+      color: #ccc;
+    }
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
@@ -63,21 +93,37 @@
 <main>
   <h2>Miscellaneous Musings</h2>
   <article>
-    <h3>First Thought</h3>
-    <p>A casual observation about tech, life, or both.</p>
+    <h3 onclick="toggleArticle(this)">✨ A Thought About Simplicity</h3>
+    <div class="preview">Sometimes the best engineering decisions...</div>
+    <div class="full-content">
+      <p>Sometimes the best engineering decisions are the ones that require the least code. Simplicity often wins in long-term maintainability.</p>
+    </div>
   </article>
   <article>
-    <h3>Another Perspective</h3>
-    <p>Reflections on a recent challenge or fun idea.</p>
+    <h3 onclick="toggleArticle(this)">💡 Tools I Love</h3>
+    <div class="preview">A short list of utilities I keep going...</div>
+    <div class="full-content">
+      <p>A short list of utilities I keep going back to, even when the shiny new stuff comes out. Think jq, bat, fzf, ripgrep — small, fast, effective.</p>
+    </div>
   </article>
 </main>
 
 <footer>
-  <div>Contact: <a href="mailto:youremail@example.com">youremail@example.com</a></div>
+  <p>Contact: <a href="mailto:premsantosh@duck.com">youremail@example.com</a></p>
   <div class="social-icons">
-    <a href="https://github.com/yourusername" target="_blank"><i class="fab fa-github"></i></a>
-    <a href="https://linkedin.com/in/yourusername" target="_blank"><i class="fab fa-linkedin"></i></a>
+    <a href="https://github.com/premsantosh" target="_blank"><i class="fab fa-github"></i></a>
+    <a href="https://linkedin.com/in/premsantosh" target="_blank"><i class="fab fa-linkedin"></i></a>
   </div>
 </footer>
+
+<script>
+    function toggleArticle(header) {
+      const preview = header.nextElementSibling;
+      const full = preview.nextElementSibling;
+      const isVisible = full.style.display === 'block';
+      full.style.display = isVisible ? 'none' : 'block';
+      preview.style.display = isVisible ? 'block' : 'none';
+    }
+  </script>
 </body>
 </html>

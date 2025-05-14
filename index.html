@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Prem Santosh</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-p1CnFMZ0WHV9IpwvJqJo7v1dqU2E4Xt5pM5u6nPqyozqLwS+3xz3Bb2YONHi4TwVdL0yZKqtwL9KzS1jT+6W1g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * {
       box-sizing: border-box;
@@ -40,6 +40,12 @@
     header h1 a {
       color: #fff;
       text-decoration: none;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
     }
 
     nav a {
@@ -98,6 +104,29 @@
       font-size: 1.5rem;
       display: inline-block;
     }
+
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      nav {
+        width: 100%;
+        justify-content: flex-start;
+        margin-top: 0.5rem;
+      }
+
+      nav a {
+        margin-left: 0;
+        margin-right: 1rem;
+      }
+
+      .animated-welcome {
+        font-size: 1.5rem;
+        text-align: center;
+      }
+    }
   </style>
 </head>
 <body>
@@ -117,14 +146,14 @@
     <div class="welcome-text">స్వాగతం (<em>Swāgataṁ</em>)</div>
     <div class="welcome-text">Bienvenido</div>
   </div>
-  <p>This is my digital home. Here, I share thoughts, code, and concise research takes.</p>
+  <p>This is my digital home. Here, I share random thoughts and concise research takes.</p>
 </main>
 
 <footer>
-  <p>Contact: <a href="mailto:youremail@example.com">youremail@example.com</a></p>
+  <p>Contact: <a href="mailto:premsantosh@duck.com">youremail@example.com</a></p>
   <div class="social-icons">
-    <a href="https://github.com/yourusername" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
-    <a href="https://linkedin.com/in/yourusername" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+    <a href="https://github.com/premsantosh" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+    <a href="https://linkedin.com/in/premsantosh" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
   </div>
 </footer>
 
