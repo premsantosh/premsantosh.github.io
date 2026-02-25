@@ -206,7 +206,7 @@
       overflow: hidden;
     }
 
-    article:hover {
+    article:not(.open):hover {
       transform: translate(-4px, -4px);
       box-shadow: 6px 6px 0 var(--purple);
       border-color: var(--purple);
@@ -248,7 +248,63 @@
       padding-top: 0.75rem;
       border-top: 1.5px solid var(--border);
       font-size: 0.925rem;
-      color: #4a4870;
+      color: #3a3a4a;
+      cursor: default;
+    }
+
+    .full-content p {
+      margin-bottom: 0.9rem;
+      line-height: 1.75;
+    }
+
+    .full-content p:last-child { margin-bottom: 0; }
+
+    .full-content h4 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 1.25rem 0 0.4rem;
+    }
+
+    .full-content ul {
+      padding-left: 1.25rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .full-content ul li {
+      margin-bottom: 0.35rem;
+      line-height: 1.65;
+    }
+
+    .full-content ul li strong {
+      color: var(--text);
+    }
+
+    .full-content .section-divider {
+      border: none;
+      border-top: 1.5px solid var(--border);
+      margin: 1.25rem 0;
+    }
+
+    .paper-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.825rem;
+      font-weight: 600;
+      color: var(--purple);
+      text-decoration: none;
+      margin-top: 1rem;
+      padding: 0.4rem 0.9rem;
+      border: 1.5px solid var(--purple);
+      border-radius: 999px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .paper-link:hover {
+      background: var(--purple);
+      color: #fff;
     }
 
     footer {
@@ -338,18 +394,57 @@
 
 <main>
   <h2>Research Briefs</h2>
+
   <article onclick="toggleArticle(this)">
-    <h3>📘 A Deep Dive into Vector Search <span class="toggle-icon">▼</span></h3>
-    <div class="preview">What makes approximate nearest neighbors...</div>
+    <h3>Cognitive Memory in Large Language Models — A Distributed Systems Perspective <span class="toggle-icon">▼</span></h3>
+    <div class="preview">Notes on a survey from Li Auto — and why the LLM memory problem looks a lot like distributed systems problems I've worked on before.</div>
     <div class="full-content">
-      <p>What makes approximate nearest neighbors work so well in practice? Here's a short primer with technical depth and practical insight.</p>
-    </div>
-  </article>
-  <article onclick="toggleArticle(this)">
-    <h3>📄 LLM Performance Benchmarks <span class="toggle-icon">▼</span></h3>
-    <div class="preview">A skim of recent research comparing...</div>
-    <div class="full-content">
-      <p>A skim of recent research comparing LLMs on practical tasks. We review strengths, blind spots, and fine-tuning strategies.</p>
+
+      <h4>The Core Problem</h4>
+      <p>LLMs are stateless. Every request comes in, gets processed, response goes out, and the model forgets everything. Sound familiar? It's basically how we used to build web services before we figured out we needed sessions and state management.</p>
+      <p>The paper frames this through a cognitive science lens — sensory memory, short-term memory, long-term memory. But when I read through it, I kept seeing parallels to problems I've worked on before.</p>
+
+      <hr class="section-divider">
+
+      <h4>KV Cache as a Buffer Management Problem</h4>
+      <p>The KV cache section was probably the most interesting to me. Transformers store key-value pairs during inference to avoid recomputing attention for previous tokens. As context gets longer, this cache grows linearly and becomes a memory bottleneck. The strategies for managing it are basically the same playbook we use in streaming systems:</p>
+      <ul>
+        <li><strong>LRU eviction</strong> — literally the same algorithm we use everywhere.</li>
+        <li><strong>Attention sink</strong> — models always attend heavily to the first few tokens regardless of semantic importance, so you always keep those in cache. Weird behavior but apparently it stabilizes generation quality.</li>
+        <li><strong>Scoring-based eviction</strong> — rank tokens by importance (attention score) and evict low scorers. We do similar things when deciding what to spill to disk vs keep in memory.</li>
+      </ul>
+      <p>There's also work on offloading KV cache to CPU memory or even disk, with prefetching strategies. This is just tiered storage with extra steps.</p>
+
+      <h4>Text-based Memory = Event Sourcing?</h4>
+      <p>The text-based memory section talks about storing conversation history and summaries in external databases. The way they describe "memory acquisition" (deciding what to store) and "memory management" (updates, conflict resolution) sounds a lot like event sourcing patterns.</p>
+      <p>They even discuss handling contradictory memories — one approach is keeping conflicting memories around because context matters. This is eventually consistent systems thinking applied to AI.</p>
+
+      <h4>The Retrieval Problem</h4>
+      <p>Memory is useless if you can't find what you need. The paper covers: full text search, SQL queries on metadata, semantic search via embeddings, tree-based hierarchical search, and hash-based lookup (LSH). In practice most systems probably need a combination — the same conclusion we reach in data platforms. No single query pattern fits all use cases.</p>
+
+      <hr class="section-divider">
+
+      <h4>What's Missing (IMO)</h4>
+      <ul>
+        <li><strong>Durability and recovery</strong> — not much discussion on what happens when things fail. If you're storing memories in external systems, how do you handle partial failures? What's the consistency model?</li>
+        <li><strong>Multi-tenancy</strong> — in production you're serving many users. How do you isolate memories? What are the resource allocation strategies? This matters a lot for cost.</li>
+        <li><strong>Latency budgets</strong> — retrieval adds latency to every request. The paper doesn't quantify acceptable tradeoffs. In streaming we obsess over p99 latency; would be nice to see similar rigor here.</li>
+      </ul>
+
+      <h4>Random Thought</h4>
+      <p>The "forgetting curve" for memory decay is modeled as exponential decay with a strength parameter — every time a memory is accessed, strength goes up and the decay timer resets. This is basically TTL with access-based refresh. We do this all the time in caching layers.</p>
+
+      <hr class="section-divider">
+
+      <h4>Wrapping Up</h4>
+      <p>Overall a solid survey if you want to understand the landscape of LLM memory research. The cognitive framing is interesting but I found it more useful to think about it through distributed systems primitives. At the end of the day we're talking about state management, caching, retrieval, and consistency — problems that have been around forever.</p>
+      <p>The main difference is that "importance" of data is harder to define. In traditional systems you know what's hot based on access patterns. In LLMs, what's "important" depends on semantic relevance to future queries, which is quite hard to predict. That's where all the attention-based scoring and embedding similarity stuff comes in.</p>
+      <p>Anyway, if you work on infra and are curious about LLMs, worth skimming at least.</p>
+
+      <a class="paper-link" href="https://arxiv.org/html/2504.02441v1" target="_blank" rel="noopener">
+        <i class="fas fa-arrow-up-right-from-square"></i> Read the paper
+      </a>
+
     </div>
   </article>
 </main>
