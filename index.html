@@ -14,188 +14,415 @@
     }
 
     :root {
-      --bg: #0a0a0f;
-      --surface: #13131a;
-      --border: rgba(255,255,255,0.07);
-      --text: #eeeef5;
-      --muted: rgba(238,238,245,0.45);
-      --accent1: #8b5cf6;
-      --accent2: #22d3ee;
-      --gradient: linear-gradient(135deg, #8b5cf6, #22d3ee);
+      --purple: #5b21b6;
+      --orange: #f97316;
+      --cyan: #06b6d4;
+      --yellow: #fde68a;
+      --green: #4ade80;
+      --lavender: #c4b5fd;
+      --text: #0f0f1a;
+      --muted: #71717a;
+      --border: #e5e7eb;
     }
 
     body {
       font-family: 'Inter', sans-serif;
-      background-color: var(--bg);
+      background: #ffffff;
       color: var(--text);
       line-height: 1.7;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-      background-image:
-        radial-gradient(ellipse at 20% 50%, rgba(139,92,246,0.08) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 20%, rgba(34,211,238,0.06) 0%, transparent 50%);
+      overflow-x: hidden;
     }
 
+    /* ── Decorative shapes ── */
+    .deco { position: fixed; pointer-events: none; z-index: 0; }
+
+    .deco-blob {
+      width: 360px; height: 360px;
+      background: var(--yellow);
+      border-radius: 62% 38% 46% 54% / 60% 44% 56% 40%;
+      top: -90px; right: -90px;
+      animation: morphBlob 11s ease-in-out infinite;
+      opacity: 0.85;
+    }
+    @keyframes morphBlob {
+      0%, 100% { border-radius: 62% 38% 46% 54% / 60% 44% 56% 40%; }
+      33%       { border-radius: 40% 60% 58% 42% / 48% 60% 40% 52%; }
+      66%       { border-radius: 52% 48% 36% 64% / 42% 56% 44% 58%; }
+    }
+    .deco-dots {
+      width: 160px; height: 160px;
+      background-image: radial-gradient(circle, var(--cyan) 2.5px, transparent 2.5px);
+      background-size: 18px 18px;
+      bottom: 60px; left: 32px; opacity: 0.45;
+    }
+    .deco-ring {
+      width: 88px; height: 88px;
+      border: 7px solid var(--orange); border-radius: 50%;
+      top: 42%; left: -18px;
+      animation: floatY 7s ease-in-out infinite;
+    }
+    .deco-pill {
+      width: 72px; height: 26px;
+      background: var(--lavender); border-radius: 999px;
+      top: 210px; right: 18%;
+      animation: floatY 8s ease-in-out infinite; animation-delay: -3s;
+    }
+    .deco-diamond {
+      width: 28px; height: 28px;
+      background: var(--green);
+      bottom: 22%; right: 7%;
+      animation: spinSlow 9s linear infinite;
+    }
+    .deco-dots-sm {
+      width: 90px; height: 90px;
+      background-image: radial-gradient(circle, var(--orange) 2.5px, transparent 2.5px);
+      background-size: 16px 16px;
+      top: 120px; left: 5%; opacity: 0.35;
+    }
+    @keyframes floatY {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-14px); }
+    }
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    /* ── Header ── */
     header {
-      border-bottom: 1px solid var(--border);
+      background: #ffffff;
+      border-bottom: 2px solid var(--border);
       padding: 1.25rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      backdrop-filter: blur(12px);
-      background: rgba(10,10,15,0.85);
       position: sticky;
       top: 0;
       z-index: 100;
     }
-
     header h1 {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 1.35rem;
       font-weight: 700;
       letter-spacing: -0.02em;
     }
-
-    header h1 a {
-      text-decoration: none;
-      background: var(--gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    nav {
-      display: flex;
-      gap: 0.25rem;
-      flex-wrap: wrap;
-    }
-
+    header h1 a { text-decoration: none; color: var(--purple); }
+    nav { display: flex; gap: 0.25rem; flex-wrap: wrap; }
     nav a {
       color: var(--muted);
       text-decoration: none;
       font-size: 0.875rem;
-      padding: 0.35rem 0.85rem;
+      padding: 0.35rem 0.9rem;
       border-radius: 999px;
-      border: 1px solid transparent;
+      border: 1.5px solid transparent;
       transition: all 0.2s;
     }
+    nav a:hover { color: var(--purple); border-color: var(--purple); background: #f5f0ff; }
 
-    nav a:hover {
-      color: var(--text);
-      border-color: var(--border);
-      background: rgba(255,255,255,0.04);
-    }
-
+    /* ── Main ── */
     main {
       flex: 1;
       padding: 5rem 2rem 4rem;
-      max-width: 720px;
+      max-width: 900px;
       margin: auto;
       width: 100%;
+      position: relative;
+      z-index: 1;
     }
 
+    /* ── Hero ── */
     .animated-welcome {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 3.25rem;
+      font-size: 3.5rem;
       font-weight: 700;
       letter-spacing: -0.04em;
-      height: 4rem;
+      height: 4.5rem;
       position: relative;
       margin-bottom: 1.5rem;
     }
-
     .welcome-text {
       opacity: 0;
+      transform: translateY(14px);
       position: absolute;
-      transition: opacity 0.9s ease-in-out;
-      background: var(--gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--purple);
+      transition: opacity 0.6s ease, transform 0.6s ease;
     }
-
-    .welcome-text.active {
-      opacity: 1;
-    }
-
+    .welcome-text.active { opacity: 1; transform: translateY(0); }
     .hero p {
-      font-size: 1.05rem;
+      font-size: 1.1rem;
       color: var(--muted);
-      max-width: 460px;
+      max-width: 480px;
       line-height: 1.8;
+      margin-bottom: 4rem;
     }
 
+    /* ── Section label ── */
+    .section { margin-bottom: 3rem; }
+    .section-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--purple);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1.5px;
+      background: var(--border);
+    }
+
+    /* ── Timeline ── */
+    .timeline { position: relative; padding-left: 1.75rem; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 5px; top: 10px; bottom: 10px;
+      width: 2px;
+      background: linear-gradient(to bottom, #5b21b6, #f97316, #06b6d4, #5b21b6, #f97316);
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+    .timeline-item:last-child { margin-bottom: 0; }
+    .timeline-dot {
+      position: absolute;
+      left: -1.75rem; top: 7px;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: var(--dot-color);
+      border: 2.5px solid #fff;
+      box-shadow: 0 0 0 2px var(--dot-color);
+    }
+    .timeline-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 0.25rem 1rem;
+    }
+    .tl-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .company-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      object-fit: contain;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      flex-shrink: 0;
+    }
+    .tl-role {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: block;
+    }
+    .tl-company { font-size: 0.85rem; color: var(--muted); display: block; }
+    .tl-period {
+      font-size: 0.8rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    /* ── Education ── */
+    .edu-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: #fff;
+      border: 2px solid var(--border);
+      border-left: 4px solid var(--purple);
+      border-radius: 14px;
+      padding: 1.1rem 1.5rem;
+      max-width: 520px;
+    }
+    .edu-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .edu-degree {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .edu-school { font-size: 0.85rem; color: var(--muted); }
+
+    /* ── Certifications ── */
+    .cert-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      max-width: 620px;
+    }
+    .cert-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: #fff;
+      border: 2px solid var(--border);
+      border-left: 4px solid var(--orange);
+      border-radius: 14px;
+      padding: 0.9rem 1.25rem;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .cert-item:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: 5px 5px 0 var(--orange);
+      border-color: var(--orange);
+    }
+    .cert-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: block;
+    }
+    .cert-issuer {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .cert-link-icon {
+      color: var(--muted);
+      font-size: 0.8rem;
+      flex-shrink: 0;
+      transition: color 0.2s;
+    }
+    .cert-item:hover .cert-link-icon {
+      color: var(--orange);
+    }
+
+    /* ── Project cards ── */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+    .project-card {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-top: 4px solid var(--card-color);
+      border-radius: 14px;
+      padding: 1.4rem 1.4rem 1.2rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .project-card:hover {
+      transform: translate(-4px, -4px);
+      box-shadow: 6px 6px 0 var(--card-color);
+      border-color: var(--card-color);
+      border-top-color: var(--card-color);
+    }
+    .card-stat {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.25rem;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--card-color);
+      letter-spacing: -0.03em;
+    }
+    .card-stat-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.75rem;
+      margin-top: 0.2rem;
+    }
+    .card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.975rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .card-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.65;
+      flex: 1;
+      margin-bottom: 1rem;
+    }
+    .tech-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .tag {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      background: #f3f4f6;
+      color: #4b5563;
+      font-family: 'Space Grotesk', monospace;
+      font-weight: 500;
+    }
+
+    /* ── Footer ── */
     footer {
-      border-top: 1px solid var(--border);
+      border-top: 2px solid var(--border);
       padding: 1.25rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
       gap: 1rem;
+      position: relative;
+      z-index: 1;
     }
-
-    footer p {
-      color: var(--muted);
-      font-size: 0.875rem;
-    }
-
-    footer a {
-      color: var(--accent1);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    footer a:hover {
-      color: var(--accent2);
-    }
-
-    .social-icons {
-      display: flex;
-      gap: 0.75rem;
-    }
-
+    footer p { color: var(--muted); font-size: 0.875rem; }
+    footer a { color: var(--purple); text-decoration: none; font-weight: 500; transition: color 0.2s; }
+    footer a:hover { color: var(--orange); }
+    .social-icons { display: flex; gap: 0.75rem; }
     .social-icons a {
       color: var(--muted);
-      font-size: 1.1rem;
+      font-size: 1.15rem;
+      display: inline-block;
       transition: color 0.2s;
     }
-
-    .social-icons a:hover {
-      color: var(--text);
+    .social-icons a:hover { color: var(--purple); animation: iconBounce 0.4s ease; }
+    @keyframes iconBounce {
+      0%, 100% { transform: translateY(0); }
+      40%       { transform: translateY(-7px); }
+      70%       { transform: translateY(-2px); }
     }
 
     @media (max-width: 600px) {
-      header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.75rem;
-      }
-
-      .animated-welcome {
-        font-size: 2.25rem;
-        height: 3rem;
-      }
-
-      footer {
-        flex-direction: column;
-        align-items: flex-start;
-      }
+      header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+      .animated-welcome { font-size: 2.4rem; height: 3.25rem; }
+      .timeline-row { flex-direction: column; gap: 0.4rem; }
+      footer { flex-direction: column; align-items: flex-start; }
+      .deco-ring, .deco-dots-sm { display: none; }
     }
   </style>
 </head>
 <body>
+
+<div class="deco deco-blob"></div>
+<div class="deco deco-dots"></div>
+<div class="deco deco-ring"></div>
+<div class="deco deco-pill"></div>
+<div class="deco deco-diamond"></div>
+<div class="deco deco-dots-sm"></div>
+
 <header>
   <h1><a href="index.html">Build // Break // Blog</a></h1>
   <nav>
     <a href="musings.html">Miscellaneous Musings</a>
     <a href="briefs.html">Research Briefs</a>
+    <a href="projects.html">Projects</a>
   </nav>
 </header>
 
 <main>
+  <!-- Hero -->
   <div class="hero">
     <div class="animated-welcome">
       <div class="welcome-text active">Welcome</div>
@@ -204,8 +431,222 @@
       <div class="welcome-text">స్వాగతం (<em>Swāgataṁ</em>)</div>
       <div class="welcome-text">Bienvenido</div>
     </div>
-    <p>This is my digital home. Here, I share random thoughts and concise research takes.</p>
+    <p>To my digital home!</p>
   </div>
+
+  <!-- Experience -->
+  <section class="section">
+    <div class="section-label">Experience</div>
+    <div class="timeline">
+
+      <div class="timeline-item">
+        <div class="timeline-dot" style="--dot-color: #5b21b6"></div>
+        <div class="timeline-content">
+          <div class="timeline-row">
+            <div class="tl-left">
+              <img src="https://www.google.com/s2/favicons?domain=lyft.com&sz=128" class="company-logo" alt="Lyft">
+              <div>
+                <span class="tl-role">Engineering Manager</span>
+                <span class="tl-company">Lyft · San Francisco, CA</span>
+              </div>
+            </div>
+            <span class="tl-period">2021 – Present</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot" style="--dot-color: #f97316"></div>
+        <div class="timeline-content">
+          <div class="timeline-row">
+            <div class="tl-left">
+              <img src="https://www.google.com/s2/favicons?domain=lyft.com&sz=128" class="company-logo" alt="Lyft">
+              <div>
+                <span class="tl-role">Software Engineer</span>
+                <span class="tl-company">Lyft · San Francisco, CA</span>
+              </div>
+            </div>
+            <span class="tl-period">2019 – 2021</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot" style="--dot-color: #06b6d4"></div>
+        <div class="timeline-content">
+          <div class="timeline-row">
+            <div class="tl-left">
+              <img src="https://www.google.com/s2/favicons?domain=yelp.com&sz=128" class="company-logo" alt="Yelp">
+              <div>
+                <span class="tl-role">Software Engineer</span>
+                <span class="tl-company">Yelp · San Francisco, CA</span>
+              </div>
+            </div>
+            <span class="tl-period">2015 – 2019</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot" style="--dot-color: #5b21b6"></div>
+        <div class="timeline-content">
+          <div class="timeline-row">
+            <div class="tl-left">
+              <img src="https://www.google.com/s2/favicons?domain=oraclehealth.com&sz=128" class="company-logo" alt="Oracle Health">
+              <div>
+                <span class="tl-role">Software Engineer</span>
+                <span class="tl-company">Oracle Health · Kansas City, MO</span>
+              </div>
+            </div>
+            <span class="tl-period">2012 – 2015</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot" style="--dot-color: #f97316"></div>
+        <div class="timeline-content">
+          <div class="timeline-row">
+            <div class="tl-left">
+              <img src="https://www.google.com/s2/favicons?domain=ericsson.com&sz=128" class="company-logo" alt="Ericsson">
+              <div>
+                <span class="tl-role">Software Engineer Intern</span>
+                <span class="tl-company">Ericsson · Plano, TX</span>
+              </div>
+            </div>
+            <span class="tl-period">2011</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Education -->
+  <section class="section">
+    <div class="section-label">Education</div>
+    <div class="edu-card">
+      <span class="edu-icon">🎓</span>
+      <div>
+        <div class="edu-degree">M.S. Computer Science</div>
+        <div class="edu-school">University of Texas at Dallas · Graduated 2012</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Certifications -->
+  <section class="section">
+    <div class="section-label">Certifications</div>
+    <div class="cert-list">
+
+      <a class="cert-item" href="https://www.coursera.org/account/accomplishments/verify/SXS96UUU83B3" target="_blank" rel="noopener">
+        <div>
+          <span class="cert-name">Hyperparameter Tuning, Regularization and Optimization</span>
+          <span class="cert-issuer">deeplearning.ai · Coursera</span>
+        </div>
+        <i class="fas fa-arrow-up-right-from-square cert-link-icon"></i>
+      </a>
+
+      <a class="cert-item" href="https://www.coursera.org/account/accomplishments/verify/4B5FQRV6ETH7" target="_blank" rel="noopener">
+        <div>
+          <span class="cert-name">Neural Networks &amp; Deep Learning</span>
+          <span class="cert-issuer">deeplearning.ai · Coursera</span>
+        </div>
+        <i class="fas fa-arrow-up-right-from-square cert-link-icon"></i>
+      </a>
+
+      <a class="cert-item" href="https://www.coursera.org/account/accomplishments/verify/DCUKVD9PCBGT" target="_blank" rel="noopener">
+        <div>
+          <span class="cert-name">Structuring Machine Learning Projects</span>
+          <span class="cert-issuer">deeplearning.ai · Coursera</span>
+        </div>
+        <i class="fas fa-arrow-up-right-from-square cert-link-icon"></i>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- Impact Highlights -->
+  <section class="section">
+    <div class="section-label">Impact Highlights</div>
+    <div class="projects-grid">
+
+      <div class="project-card" style="--card-color: #5b21b6">
+        <div class="card-stat">2,800+</div>
+        <div class="card-stat-label">ML features in production</div>
+        <div class="card-title">ML Feature Platform at Lyft</div>
+        <div class="card-desc">Grew Lyft's Feature Service from 800 to 2,800+ ML features. Scaled ingestion 100× to 50M features/hour and drove reliability from 7 pages/week down to 2 per quarter.</div>
+        <div class="tech-tags">
+          <span class="tag">Spark</span>
+          <span class="tag">Redis</span>
+          <span class="tag">DynamoDB</span>
+          <span class="tag">Airflow</span>
+        </div>
+      </div>
+
+      <div class="project-card" style="--card-color: #f97316">
+        <div class="card-stat">12×</div>
+        <div class="card-stat-label">streaming platform growth</div>
+        <div class="card-title">Realtime Compute Platform</div>
+        <div class="card-desc">Scaled Lyft's realtime platform from ~25 to 300+ Flink and Beam applications powering pricing, routing, fraud detection, and ML feature pipelines at ~5 GBPS throughput.</div>
+        <div class="tech-tags">
+          <span class="tag">Apache Flink</span>
+          <span class="tag">Apache Beam</span>
+          <span class="tag">Kafka</span>
+        </div>
+      </div>
+
+      <div class="project-card" style="--card-color: #06b6d4">
+        <div class="card-stat">1.7M</div>
+        <div class="card-stat-label">queries/month · 65% fewer failures</div>
+        <div class="card-title">Spark Platform Reliability</div>
+        <div class="card-desc">Improved Spark platform reliability by 65% and grew usage 2.2× over two years. Maintained multi-flavor Spark (Yarn + Kubernetes) for cost-optimized ML workload scheduling.</div>
+        <div class="tech-tags">
+          <span class="tag">Spark</span>
+          <span class="tag">Kubernetes</span>
+          <span class="tag">Yarn</span>
+        </div>
+      </div>
+
+      <div class="project-card" style="--card-color: #10b981">
+        <div class="card-stat">650</div>
+        <div class="card-stat-label">production jobs migrated · &lt;150ms latency</div>
+        <div class="card-title">Feature Service v2</div>
+        <div class="card-desc">Co-designed and built Lyft's next-gen feature platform from scratch. Migrated 650 jobs serving real-time and offline features across fraud, growth, mapping, and pricing.</div>
+        <div class="tech-tags">
+          <span class="tag">Spark</span>
+          <span class="tag">Airflow</span>
+          <span class="tag">Redis</span>
+          <span class="tag">DynamoDB</span>
+        </div>
+      </div>
+
+      <div class="project-card" style="--card-color: #f97316">
+        <div class="card-stat">Millions</div>
+        <div class="card-stat-label">user sessions generated daily</div>
+        <div class="card-title">Yelp Sessionizer</div>
+        <div class="card-desc">Designed, built, and scaled a streaming application that generates millions of Yelp user sessions per day in near real-time — the backbone of Yelp's core product metrics.</div>
+        <div class="tech-tags">
+          <span class="tag">Apache Flink</span>
+          <span class="tag">Kafka</span>
+          <span class="tag">Python</span>
+        </div>
+      </div>
+
+      <div class="project-card" style="--card-color: #5b21b6">
+        <div class="card-stat">~$5K</div>
+        <div class="card-stat-label">saved per day</div>
+        <div class="card-title">Cross-AZ Streaming Optimization</div>
+        <div class="card-desc">Enabled cross-AZ failover and redesigned blue/green deployment for stateful streaming jobs — cutting ~$5K/day in infrastructure costs while improving SLOs.</div>
+        <div class="tech-tags">
+          <span class="tag">Flink</span>
+          <span class="tag">Beam</span>
+          <span class="tag">Kafka</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
 </main>
 
 <footer>
