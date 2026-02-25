@@ -14,38 +14,120 @@
     }
 
     :root {
-      --bg: #0a0a0f;
-      --surface: #13131a;
-      --border: rgba(255,255,255,0.07);
-      --text: #eeeef5;
-      --muted: rgba(238,238,245,0.45);
-      --accent1: #8b5cf6;
-      --accent2: #22d3ee;
-      --gradient: linear-gradient(135deg, #8b5cf6, #22d3ee);
+      --purple: #5b21b6;
+      --purple-light: #7c3aed;
+      --orange: #f97316;
+      --cyan: #06b6d4;
+      --yellow: #fde68a;
+      --green: #4ade80;
+      --lavender: #c4b5fd;
+      --text: #0f0f1a;
+      --muted: #71717a;
+      --border: #e5e7eb;
     }
 
     body {
       font-family: 'Inter', sans-serif;
-      background-color: var(--bg);
+      background: #ffffff;
       color: var(--text);
       line-height: 1.7;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-      background-image:
-        radial-gradient(ellipse at 20% 50%, rgba(139,92,246,0.08) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 20%, rgba(34,211,238,0.06) 0%, transparent 50%);
+      overflow-x: hidden;
+    }
+
+    .deco {
+      position: fixed;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .deco-blob {
+      width: 360px;
+      height: 360px;
+      background: var(--yellow);
+      border-radius: 62% 38% 46% 54% / 60% 44% 56% 40%;
+      top: -90px;
+      right: -90px;
+      animation: morphBlob 11s ease-in-out infinite;
+      opacity: 0.85;
+    }
+
+    @keyframes morphBlob {
+      0%, 100% { border-radius: 62% 38% 46% 54% / 60% 44% 56% 40%; }
+      33%       { border-radius: 40% 60% 58% 42% / 48% 60% 40% 52%; }
+      66%       { border-radius: 52% 48% 36% 64% / 42% 56% 44% 58%; }
+    }
+
+    .deco-dots {
+      width: 160px;
+      height: 160px;
+      background-image: radial-gradient(circle, var(--cyan) 2.5px, transparent 2.5px);
+      background-size: 18px 18px;
+      bottom: 60px;
+      left: 32px;
+      opacity: 0.45;
+    }
+
+    .deco-ring {
+      width: 88px;
+      height: 88px;
+      border: 7px solid var(--orange);
+      border-radius: 50%;
+      top: 42%;
+      left: -18px;
+      animation: floatY 7s ease-in-out infinite;
+    }
+
+    .deco-pill {
+      width: 72px;
+      height: 26px;
+      background: var(--lavender);
+      border-radius: 999px;
+      top: 210px;
+      right: 18%;
+      animation: floatY 8s ease-in-out infinite;
+      animation-delay: -3s;
+    }
+
+    .deco-diamond {
+      width: 28px;
+      height: 28px;
+      background: var(--green);
+      bottom: 22%;
+      right: 7%;
+      animation: spinSlow 9s linear infinite;
+    }
+
+    .deco-dots-sm {
+      width: 90px;
+      height: 90px;
+      background-image: radial-gradient(circle, var(--orange) 2.5px, transparent 2.5px);
+      background-size: 16px 16px;
+      top: 120px;
+      left: 5%;
+      opacity: 0.35;
+    }
+
+    @keyframes floatY {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-14px); }
+    }
+
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
     }
 
     header {
-      border-bottom: 1px solid var(--border);
+      background: #ffffff;
+      border-bottom: 2px solid var(--border);
       padding: 1.25rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      backdrop-filter: blur(12px);
-      background: rgba(10,10,15,0.85);
       position: sticky;
       top: 0;
       z-index: 100;
@@ -60,10 +142,7 @@
 
     header h1 a {
       text-decoration: none;
-      background: var(--gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--purple);
     }
 
     nav {
@@ -76,16 +155,24 @@
       color: var(--muted);
       text-decoration: none;
       font-size: 0.875rem;
-      padding: 0.35rem 0.85rem;
+      padding: 0.35rem 0.9rem;
       border-radius: 999px;
-      border: 1px solid transparent;
+      border: 1.5px solid transparent;
       transition: all 0.2s;
     }
 
     nav a:hover {
-      color: var(--text);
+      color: var(--purple);
+      border-color: var(--purple);
+      background: #f5f0ff;
+    }
+
+    nav a.active {
+      color: var(--muted);
       border-color: var(--border);
-      background: rgba(255,255,255,0.04);
+      background: #f9fafb;
+      cursor: default;
+      pointer-events: none;
     }
 
     main {
@@ -94,53 +181,35 @@
       max-width: 720px;
       margin: auto;
       width: 100%;
+      position: relative;
+      z-index: 1;
     }
 
     main h2 {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.75rem;
+      font-size: 1.9rem;
       font-weight: 700;
       letter-spacing: -0.03em;
+      color: var(--purple);
       margin-bottom: 2rem;
-      background: var(--gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      display: inline-block;
     }
 
     article {
-      background: rgba(255,255,255,0.025);
-      border: 1px solid var(--border);
-      border-radius: 12px;
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 14px;
       padding: 1.25rem 1.5rem;
-      margin-bottom: 0.875rem;
+      margin-bottom: 1rem;
       cursor: pointer;
-      transition: background 0.2s, border-color 0.2s, transform 0.2s;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
       position: relative;
       overflow: hidden;
     }
 
-    article::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: var(--gradient);
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-
     article:hover {
-      background: rgba(255,255,255,0.045);
-      border-color: rgba(255,255,255,0.12);
-      transform: translateY(-1px);
-    }
-
-    article:hover::before {
-      opacity: 1;
+      transform: translate(-4px, -4px);
+      box-shadow: 6px 6px 0 var(--purple);
+      border-color: var(--purple);
     }
 
     article h3 {
@@ -158,8 +227,9 @@
     article h3 .toggle-icon {
       font-size: 0.7rem;
       color: var(--muted);
-      transition: transform 0.2s;
+      transition: transform 0.25s;
       font-style: normal;
+      flex-shrink: 0;
     }
 
     article.open h3 .toggle-icon {
@@ -176,19 +246,21 @@
       display: none;
       margin-top: 0.75rem;
       padding-top: 0.75rem;
-      border-top: 1px solid var(--border);
+      border-top: 1.5px solid var(--border);
       font-size: 0.925rem;
-      color: rgba(238,238,245,0.75);
+      color: #4a4870;
     }
 
     footer {
-      border-top: 1px solid var(--border);
+      border-top: 2px solid var(--border);
       padding: 1.25rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
       gap: 1rem;
+      position: relative;
+      z-index: 1;
     }
 
     footer p {
@@ -197,13 +269,14 @@
     }
 
     footer a {
-      color: var(--accent1);
+      color: var(--purple);
       text-decoration: none;
+      font-weight: 500;
       transition: color 0.2s;
     }
 
     footer a:hover {
-      color: var(--accent2);
+      color: var(--orange);
     }
 
     .social-icons {
@@ -213,12 +286,20 @@
 
     .social-icons a {
       color: var(--muted);
-      font-size: 1.1rem;
+      font-size: 1.15rem;
+      display: inline-block;
       transition: color 0.2s;
     }
 
     .social-icons a:hover {
-      color: var(--text);
+      color: var(--purple);
+      animation: iconBounce 0.4s ease;
+    }
+
+    @keyframes iconBounce {
+      0%, 100% { transform: translateY(0); }
+      40%       { transform: translateY(-7px); }
+      70%       { transform: translateY(-2px); }
     }
 
     @media (max-width: 600px) {
@@ -232,14 +313,26 @@
         flex-direction: column;
         align-items: flex-start;
       }
+
+      .deco-ring, .deco-dots-sm { display: none; }
     }
   </style>
 </head>
 <body>
+
+<div class="deco deco-blob"></div>
+<div class="deco deco-dots"></div>
+<div class="deco deco-ring"></div>
+<div class="deco deco-pill"></div>
+<div class="deco deco-diamond"></div>
+<div class="deco deco-dots-sm"></div>
+
 <header>
   <h1><a href="index.html">Build // Break // Blog</a></h1>
   <nav>
     <a href="musings.html">Miscellaneous Musings</a>
+    <a href="briefs.html" class="active">Research Briefs</a>
+    <a href="projects.html">Projects</a>
   </nav>
 </header>
 
