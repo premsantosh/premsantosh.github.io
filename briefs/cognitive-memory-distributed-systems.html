@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cognitive Memory in LLMs — A Distributed Systems Perspective — Prem Santosh</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --purple: #5b21b6;
+      --purple-light: #7c3aed;
+      --orange: #f97316;
+      --cyan: #06b6d4;
+      --yellow: #fde68a;
+      --green: #4ade80;
+      --lavender: #c4b5fd;
+      --text: #0f0f1a;
+      --muted: #71717a;
+      --border: #e5e7eb;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #ffffff;
+      color: var(--text);
+      line-height: 1.7;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .deco {
+      position: fixed;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .deco-blob {
+      width: 360px;
+      height: 360px;
+      background: var(--yellow);
+      border-radius: 62% 38% 46% 54% / 60% 44% 56% 40%;
+      top: -90px;
+      right: -90px;
+      animation: morphBlob 11s ease-in-out infinite;
+      opacity: 0.85;
+    }
+
+    @keyframes morphBlob {
+      0%, 100% { border-radius: 62% 38% 46% 54% / 60% 44% 56% 40%; }
+      33%       { border-radius: 40% 60% 58% 42% / 48% 60% 40% 52%; }
+      66%       { border-radius: 52% 48% 36% 64% / 42% 56% 44% 58%; }
+    }
+
+    .deco-dots {
+      width: 160px;
+      height: 160px;
+      background-image: radial-gradient(circle, var(--cyan) 2.5px, transparent 2.5px);
+      background-size: 18px 18px;
+      bottom: 60px;
+      left: 32px;
+      opacity: 0.45;
+    }
+
+    .deco-ring {
+      width: 88px;
+      height: 88px;
+      border: 7px solid var(--orange);
+      border-radius: 50%;
+      top: 42%;
+      left: -18px;
+      animation: floatY 7s ease-in-out infinite;
+    }
+
+    .deco-pill {
+      width: 72px;
+      height: 26px;
+      background: var(--lavender);
+      border-radius: 999px;
+      top: 210px;
+      right: 18%;
+      animation: floatY 8s ease-in-out infinite;
+      animation-delay: -3s;
+    }
+
+    .deco-diamond {
+      width: 28px;
+      height: 28px;
+      background: var(--green);
+      bottom: 22%;
+      right: 7%;
+      animation: spinSlow 9s linear infinite;
+    }
+
+    .deco-dots-sm {
+      width: 90px;
+      height: 90px;
+      background-image: radial-gradient(circle, var(--orange) 2.5px, transparent 2.5px);
+      background-size: 16px 16px;
+      top: 120px;
+      left: 5%;
+      opacity: 0.35;
+    }
+
+    @keyframes floatY {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-14px); }
+    }
+
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    header {
+      background: #ffffff;
+      border-bottom: 2px solid var(--border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    header h1 a {
+      text-decoration: none;
+      color: var(--purple);
+    }
+
+    nav {
+      display: flex;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      border: 1.5px solid transparent;
+      transition: all 0.2s;
+    }
+
+    nav a:hover {
+      color: var(--purple);
+      border-color: var(--purple);
+      background: #f5f0ff;
+    }
+
+    nav a.active {
+      color: var(--muted);
+      border-color: var(--border);
+      background: #f9fafb;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    main {
+      flex: 1;
+      padding: 4rem 2rem;
+      max-width: 720px;
+      margin: auto;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-decoration: none;
+      margin-bottom: 2rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      transition: all 0.2s;
+    }
+
+    .back-link:hover {
+      color: var(--purple);
+      border-color: var(--purple);
+      background: #f5f0ff;
+    }
+
+    main h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 2rem;
+      line-height: 1.25;
+    }
+
+    p {
+      margin-bottom: 0.9rem;
+      line-height: 1.75;
+      font-size: 0.925rem;
+      color: #3a3a4a;
+    }
+
+    h4 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 1.25rem 0 0.4rem;
+    }
+
+    ul {
+      padding-left: 1.25rem;
+      margin-bottom: 0.9rem;
+    }
+
+    ul li {
+      margin-bottom: 0.35rem;
+      line-height: 1.65;
+      font-size: 0.925rem;
+      color: #3a3a4a;
+    }
+
+    ul li strong {
+      color: var(--text);
+    }
+
+    .section-divider {
+      border: none;
+      border-top: 1.5px solid var(--border);
+      margin: 1.25rem 0;
+    }
+
+    .paper-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.825rem;
+      font-weight: 600;
+      color: var(--purple);
+      text-decoration: none;
+      margin-top: 1rem;
+      padding: 0.4rem 0.9rem;
+      border: 1.5px solid var(--purple);
+      border-radius: 999px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .paper-link:hover {
+      background: var(--purple);
+      color: #fff;
+    }
+
+    footer {
+      border-top: 2px solid var(--border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    footer p {
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+
+    footer a {
+      color: var(--purple);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    footer a:hover {
+      color: var(--orange);
+    }
+
+    .social-icons {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .social-icons a {
+      color: var(--muted);
+      font-size: 1.15rem;
+      display: inline-block;
+      transition: color 0.2s;
+    }
+
+    .social-icons a:hover {
+      color: var(--purple);
+      animation: iconBounce 0.4s ease;
+    }
+
+    @keyframes iconBounce {
+      0%, 100% { transform: translateY(0); }
+      40%       { transform: translateY(-7px); }
+      70%       { transform: translateY(-2px); }
+    }
+
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+
+      footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .deco-ring, .deco-dots-sm { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="deco deco-blob"></div>
+<div class="deco deco-dots"></div>
+<div class="deco deco-ring"></div>
+<div class="deco deco-pill"></div>
+<div class="deco deco-diamond"></div>
+<div class="deco deco-dots-sm"></div>
+
+<header>
+  <h1><a href="../index.html">Build // Break // Blog</a></h1>
+  <nav>
+    <a href="../musings.html">Miscellaneous Musings</a>
+    <a href="../briefs.html" class="active">Research Briefs</a>
+    <a href="../projects.html">Projects</a>
+  </nav>
+</header>
+
+<main>
+  <a class="back-link" href="../briefs.html">← All Research Briefs</a>
+
+  <h2>Cognitive Memory in Large Language Models — A Distributed Systems Perspective</h2>
+
+  <h4>The Core Problem</h4>
+  <p>LLMs are stateless. Every request comes in, gets processed, response goes out, and the model forgets everything. Sound familiar? It's basically how we used to build web services before we figured out we needed sessions and state management.</p>
+  <p>The paper frames this through a cognitive science lens — sensory memory, short-term memory, long-term memory. But when I read through it, I kept seeing parallels to problems I've worked on before.</p>
+
+  <hr class="section-divider">
+
+  <h4>KV Cache as a Buffer Management Problem</h4>
+  <p>The KV cache section was probably the most interesting to me. Transformers store key-value pairs during inference to avoid recomputing attention for previous tokens. As context gets longer, this cache grows linearly and becomes a memory bottleneck. The strategies for managing it are basically the same playbook we use in streaming systems:</p>
+  <ul>
+    <li><strong>LRU eviction</strong> — literally the same algorithm we use everywhere.</li>
+    <li><strong>Attention sink</strong> — models always attend heavily to the first few tokens regardless of semantic importance, so you always keep those in cache. Weird behavior but apparently it stabilizes generation quality.</li>
+    <li><strong>Scoring-based eviction</strong> — rank tokens by importance (attention score) and evict low scorers. We do similar things when deciding what to spill to disk vs keep in memory.</li>
+  </ul>
+  <p>There's also work on offloading KV cache to CPU memory or even disk, with prefetching strategies. This is just tiered storage with extra steps.</p>
+
+  <h4>Text-based Memory = Event Sourcing?</h4>
+  <p>The text-based memory section talks about storing conversation history and summaries in external databases. The way they describe "memory acquisition" (deciding what to store) and "memory management" (updates, conflict resolution) sounds a lot like event sourcing patterns.</p>
+  <p>They even discuss handling contradictory memories — one approach is keeping conflicting memories around because context matters. This is eventually consistent systems thinking applied to AI.</p>
+
+  <h4>The Retrieval Problem</h4>
+  <p>Memory is useless if you can't find what you need. The paper covers: full text search, SQL queries on metadata, semantic search via embeddings, tree-based hierarchical search, and hash-based lookup (LSH). In practice most systems probably need a combination — the same conclusion we reach in data platforms. No single query pattern fits all use cases.</p>
+
+  <hr class="section-divider">
+
+  <h4>What's Missing (IMO)</h4>
+  <ul>
+    <li><strong>Durability and recovery</strong> — not much discussion on what happens when things fail. If you're storing memories in external systems, how do you handle partial failures? What's the consistency model?</li>
+    <li><strong>Multi-tenancy</strong> — in production you're serving many users. How do you isolate memories? What are the resource allocation strategies? This matters a lot for cost.</li>
+    <li><strong>Latency budgets</strong> — retrieval adds latency to every request. The paper doesn't quantify acceptable tradeoffs. In streaming we obsess over p99 latency; would be nice to see similar rigor here.</li>
+  </ul>
+
+  <h4>Random Thought</h4>
+  <p>The "forgetting curve" for memory decay is modeled as exponential decay with a strength parameter — every time a memory is accessed, strength goes up and the decay timer resets. This is basically TTL with access-based refresh. We do this all the time in caching layers.</p>
+
+  <hr class="section-divider">
+
+  <h4>Wrapping Up</h4>
+  <p>Overall a solid survey if you want to understand the landscape of LLM memory research. The cognitive framing is interesting but I found it more useful to think about it through distributed systems primitives. At the end of the day we're talking about state management, caching, retrieval, and consistency — problems that have been around forever.</p>
+  <p>The main difference is that "importance" of data is harder to define. In traditional systems you know what's hot based on access patterns. In LLMs, what's "important" depends on semantic relevance to future queries, which is quite hard to predict. That's where all the attention-based scoring and embedding similarity stuff comes in.</p>
+  <p>Anyway, if you work on infra and are curious about LLMs, worth skimming at least.</p>
+
+  <a class="paper-link" href="https://arxiv.org/html/2504.02441v1" target="_blank" rel="noopener">
+    <i class="fas fa-arrow-up-right-from-square"></i> Read the paper
+  </a>
+</main>
+
+<footer>
+  <p>Contact: <a href="mailto:premsantosh@protonmail.com">premsantosh@protonmail.com</a></p>
+  <div class="social-icons">
+    <a href="https://github.com/premsantosh" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+    <a href="https://linkedin.com/in/premsantosh" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+  </div>
+</footer>
+
+</body>
+</html>
