@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memory in Large Language Models: Mechanisms, Evaluation and Evolution — Prem Santosh</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --purple: #5b21b6;
+      --purple-light: #7c3aed;
+      --orange: #f97316;
+      --cyan: #06b6d4;
+      --yellow: #fde68a;
+      --green: #4ade80;
+      --lavender: #c4b5fd;
+      --text: #0f0f1a;
+      --muted: #71717a;
+      --border: #e5e7eb;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #ffffff;
+      color: var(--text);
+      line-height: 1.7;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .deco {
+      position: fixed;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .deco-blob {
+      width: 360px;
+      height: 360px;
+      background: var(--yellow);
+      border-radius: 62% 38% 46% 54% / 60% 44% 56% 40%;
+      top: -90px;
+      right: -90px;
+      animation: morphBlob 11s ease-in-out infinite;
+      opacity: 0.85;
+    }
+
+    @keyframes morphBlob {
+      0%, 100% { border-radius: 62% 38% 46% 54% / 60% 44% 56% 40%; }
+      33%       { border-radius: 40% 60% 58% 42% / 48% 60% 40% 52%; }
+      66%       { border-radius: 52% 48% 36% 64% / 42% 56% 44% 58%; }
+    }
+
+    .deco-dots {
+      width: 160px;
+      height: 160px;
+      background-image: radial-gradient(circle, var(--cyan) 2.5px, transparent 2.5px);
+      background-size: 18px 18px;
+      bottom: 60px;
+      left: 32px;
+      opacity: 0.45;
+    }
+
+    .deco-ring {
+      width: 88px;
+      height: 88px;
+      border: 7px solid var(--orange);
+      border-radius: 50%;
+      top: 42%;
+      left: -18px;
+      animation: floatY 7s ease-in-out infinite;
+    }
+
+    .deco-pill {
+      width: 72px;
+      height: 26px;
+      background: var(--lavender);
+      border-radius: 999px;
+      top: 210px;
+      right: 18%;
+      animation: floatY 8s ease-in-out infinite;
+      animation-delay: -3s;
+    }
+
+    .deco-diamond {
+      width: 28px;
+      height: 28px;
+      background: var(--green);
+      bottom: 22%;
+      right: 7%;
+      animation: spinSlow 9s linear infinite;
+    }
+
+    .deco-dots-sm {
+      width: 90px;
+      height: 90px;
+      background-image: radial-gradient(circle, var(--orange) 2.5px, transparent 2.5px);
+      background-size: 16px 16px;
+      top: 120px;
+      left: 5%;
+      opacity: 0.35;
+    }
+
+    @keyframes floatY {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-14px); }
+    }
+
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    header {
+      background: #ffffff;
+      border-bottom: 2px solid var(--border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    header h1 a {
+      text-decoration: none;
+      color: var(--purple);
+    }
+
+    nav {
+      display: flex;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      border: 1.5px solid transparent;
+      transition: all 0.2s;
+    }
+
+    nav a:hover {
+      color: var(--purple);
+      border-color: var(--purple);
+      background: #f5f0ff;
+    }
+
+    nav a.active {
+      color: var(--muted);
+      border-color: var(--border);
+      background: #f9fafb;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    main {
+      flex: 1;
+      padding: 4rem 2rem;
+      max-width: 720px;
+      margin: auto;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-decoration: none;
+      margin-bottom: 2rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      transition: all 0.2s;
+    }
+
+    .back-link:hover {
+      color: var(--purple);
+      border-color: var(--purple);
+      background: #f5f0ff;
+    }
+
+    main h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 2rem;
+      line-height: 1.25;
+    }
+
+    p {
+      margin-bottom: 0.9rem;
+      line-height: 1.75;
+      font-size: 0.925rem;
+      color: #3a3a4a;
+    }
+
+    h4 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 1.25rem 0 0.4rem;
+    }
+
+    ul {
+      padding-left: 1.25rem;
+      margin-bottom: 0.9rem;
+    }
+
+    ul li {
+      margin-bottom: 0.35rem;
+      line-height: 1.65;
+      font-size: 0.925rem;
+      color: #3a3a4a;
+    }
+
+    ul li strong {
+      color: var(--text);
+    }
+
+    ol {
+      padding-left: 1.25rem;
+      margin-bottom: 0.9rem;
+    }
+
+    ol li {
+      margin-bottom: 0.35rem;
+      line-height: 1.65;
+      font-size: 0.925rem;
+      color: #3a3a4a;
+    }
+
+    ol li strong {
+      color: var(--text);
+    }
+
+    .section-divider {
+      border: none;
+      border-top: 1.5px solid var(--border);
+      margin: 1.25rem 0;
+    }
+
+    .paper-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.825rem;
+      font-weight: 600;
+      color: var(--purple);
+      text-decoration: none;
+      margin-top: 1rem;
+      padding: 0.4rem 0.9rem;
+      border: 1.5px solid var(--purple);
+      border-radius: 999px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .paper-link:hover {
+      background: var(--purple);
+      color: #fff;
+    }
+
+    footer {
+      border-top: 2px solid var(--border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    footer p {
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+
+    footer a {
+      color: var(--purple);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    footer a:hover {
+      color: var(--orange);
+    }
+
+    .social-icons {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .social-icons a {
+      color: var(--muted);
+      font-size: 1.15rem;
+      display: inline-block;
+      transition: color 0.2s;
+    }
+
+    .social-icons a:hover {
+      color: var(--purple);
+      animation: iconBounce 0.4s ease;
+    }
+
+    @keyframes iconBounce {
+      0%, 100% { transform: translateY(0); }
+      40%       { transform: translateY(-7px); }
+      70%       { transform: translateY(-2px); }
+    }
+
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+
+      footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .deco-ring, .deco-dots-sm { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="deco deco-blob"></div>
+<div class="deco deco-dots"></div>
+<div class="deco deco-ring"></div>
+<div class="deco deco-pill"></div>
+<div class="deco deco-diamond"></div>
+<div class="deco deco-dots-sm"></div>
+
+<header>
+  <h1><a href="../index.html">Build // Break // Blog</a></h1>
+  <nav>
+    <a href="../musings.html">Miscellaneous Musings</a>
+    <a href="../briefs.html" class="active">Research Briefs</a>
+    <a href="../projects.html">Projects</a>
+  </nav>
+</header>
+
+<main>
+  <a class="back-link" href="../briefs.html">← All Research Briefs</a>
+
+  <h2>Memory in Large Language Models: Mechanisms, Evaluation and Evolution</h2>
+
+  <p>Another LLM memory survey paper crossed my feed, this one from Zhang et al. (arXiv 2509.18868). It's more recent than the Li Auto paper I wrote about before and takes a different angle. Less about implementation techniques and more about how to actually think about and evaluate memory as a system property.</p>
+
+  <h4>The Core Framing</h4>
+  <p>The paper starts with a pretty good operational definition: LLM memory is "a persistent state written during pretraining, finetuning, or inference that can later be addressed and stably influences outputs."</p>
+  <p>I like this framing because it gets at the lifecycle aspect. Memory isn't just one thing, it gets written at different stages and has different characteristics depending on when and how it was created.</p>
+
+  <h4>The Taxonomy</h4>
+  <p>They break down memory into four types:</p>
+  <ol>
+    <li><strong>Parametric memory</strong>: facts baked into model weights during training. Think of this as the read-only data that ships with the binary.</li>
+    <li><strong>Contextual memory</strong>: what fits in the context window during inference. This is your working set.</li>
+    <li><strong>External memory</strong>: RAG, vector DBs, knowledge graphs etc. External storage you query at runtime.</li>
+    <li><strong>Procedural/episodic memory</strong>: cross-session state, user-specific memories. The stuff that makes the model "remember" you across conversations.</li>
+  </ol>
+  <p>They also define a "memory quadruple" for characterizing each type: storage location, persistence, write/access path, controllability. This is the kind of structured thinking that's actually useful when you're trying to reason about system design.</p>
+
+  <hr class="section-divider">
+
+  <h4>The Evaluation Protocol - This is the Good Stuff</h4>
+  <p>What I found most interesting was their evaluation framework. They argue (correctly imo) that a lot of LLM memory research is hard to compare because everyone uses different setups. A model with RAG enabled isn't comparable to a model without it, you're measuring different things.</p>
+  <p>So they propose a three-setting protocol:</p>
+  <ol>
+    <li><strong>Parameter-only (PO)</strong> closed book, no retrieval. Tests what the model actually "knows" from training.</li>
+    <li><strong>Offline retrieval</strong> RAG with a fixed corpus prepared ahead of time.</li>
+    <li><strong>Online retrieval</strong> RAG with live/dynamic sources.</li>
+  </ol>
+  <p>The idea is you evaluate the same model under all three settings to decouple capability from information availability. This is actually a really clean separation. It's similar to how in benchmarking distributed systems you want to isolate variables — test with local storage vs remote storage vs cached results separately, then compare.</p>
+
+  <h4>Mid-Sequence Drop</h4>
+  <p>One phenomenon they call out that I hadn't heard named before: the "mid-sequence drop". Basically, as context windows get longer, models get worse at using information in the middle of the context. They attend heavily to the beginning and end, but stuff in the middle gets lost.</p>
+  <p>This feels related to the "attention sink" phenomenon from the other paper, there's something about transformer attention that creates these position-dependent biases. Would be interesting to see if this is a fundamental architectural limitation or something that can be trained away.</p>
+
+  <hr class="section-divider">
+
+  <h4>The Governance Angle</h4>
+  <p>The paper spends a lot of time on what they call "temporal governance", how do you update and forget things in a controlled way? This is where it gets interesting from an ops perspective.</p>
+  <p>They talk about coordinating multiple update mechanisms:</p>
+  <ul>
+    <li>Continued pretraining (DAPT/TAPT)</li>
+    <li>Parameter-efficient finetuning (PEFT/LoRA)</li>
+    <li>Direct model editing (ROME, MEMIT, etc.)</li>
+    <li>RAG updates</li>
+  </ul>
+  <p>And they propose a governance framework called DMM-Gov with: admission thresholds, progressive rollout, online monitoring, reversible rollback, and audit certificates.</p>
+  <p>This is... basically a change management system for model knowledge. If you've ever dealt with database migrations or config management at scale, this should feel familiar. The challenge is that unlike a database where you can query what data exists, model parameters are opaque. You can't just <code>SELECT * FROM model_knowledge WHERE topic='outdated_medical_advice'</code>.</p>
+  <p>The model editing techniques (ROME, MEMIT) try to do targeted edits to specific facts, but they acknowledge there's tension between effectiveness, locality, and generalization. Edit one thing and you might break something else. Sounds like every complex system I've worked with tbh.</p>
+
+  <hr class="section-divider">
+
+  <h4>Thoughts</h4>
+  <p>This paper is more academic than practical, lots of framework and taxonomy, less hands-on implementation guidance. But I think that's actually valuable? The field seems to need some standardization on how to even talk about these problems.</p>
+  <p>A few things that stood out to me:</p>
+  <p><strong>The write-read-inhibit chain</strong> - they frame memory operations as write (store new info) → read (retrieve) → inhibit/update (forget or modify). This is a useful mental model. Every memory system needs all three and they're in tension with each other.</p>
+  <p><strong>Correctness vs faithfulness</strong> - for external memory (RAG), they distinguish between "did you get the right answer" and "did you actually use the retrieved evidence vs making stuff up". These can diverge, model might get lucky and be correct without being faithful to sources, or vice versa. Good distinction for evaluating RAG pipelines.</p>
+  <p><strong>The stability-plasticity tradeoff</strong> - updating parametric memory (via continued training) risks catastrophic forgetting. This is the classic ML problem but framed nicely in terms of memory. You want the system to learn new things without forgetting old things. No free lunch here.</p>
+  <p>Overall I'd say this is a good complement to the Li Auto paper. That one was more "here are all the techniques people use", this one is more "here's how to think about and evaluate memory systematically". If you're building something production-grade you probably need both perspectives.</p>
+
+  <a class="paper-link" href="https://arxiv.org/abs/2509.18868" target="_blank" rel="noopener">
+    <i class="fas fa-arrow-up-right-from-square"></i> Read the paper
+  </a>
+</main>
+
+<footer>
+  <p>Contact: <a href="mailto:premsantosh@protonmail.com">premsantosh@protonmail.com</a></p>
+  <div class="social-icons">
+    <a href="https://github.com/premsantosh" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+    <a href="https://linkedin.com/in/premsantosh" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+  </div>
+</footer>
+
+</body>
+</html>
