@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sub-Millisecond Memory: How a 4-Slot Register Solves Multi-Turn Conversations — Prem Santosh</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --purple: #5b21b6;
+      --purple-light: #7c3aed;
+      --orange: #f97316;
+      --cyan: #06b6d4;
+      --yellow: #fde68a;
+      --green: #4ade80;
+      --lavender: #c4b5fd;
+      --text: #0f0f1a;
+      --muted: #71717a;
+      --border: #e5e7eb;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #ffffff;
+      color: var(--text);
+      line-height: 1.7;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .deco {
+      position: fixed;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .deco-blob {
+      width: 360px;
+      height: 360px;
+      background: var(--yellow);
+      border-radius: 62% 38% 46% 54% / 60% 44% 56% 40%;
+      top: -90px;
+      right: -90px;
+      animation: morphBlob 11s ease-in-out infinite;
+      opacity: 0.85;
+    }
+
+    @keyframes morphBlob {
+      0%, 100% { border-radius: 62% 38% 46% 54% / 60% 44% 56% 40%; }
+      33%       { border-radius: 40% 60% 58% 42% / 48% 60% 40% 52%; }
+      66%       { border-radius: 52% 48% 36% 64% / 42% 56% 44% 58%; }
+    }
+
+    .deco-dots {
+      width: 160px;
+      height: 160px;
+      background-image: radial-gradient(circle, var(--cyan) 2.5px, transparent 2.5px);
+      background-size: 18px 18px;
+      bottom: 60px;
+      left: 32px;
+      opacity: 0.45;
+    }
+
+    .deco-ring {
+      width: 88px;
+      height: 88px;
+      border: 7px solid var(--orange);
+      border-radius: 50%;
+      top: 42%;
+      left: -18px;
+      animation: floatY 7s ease-in-out infinite;
+    }
+
+    .deco-pill {
+      width: 72px;
+      height: 26px;
+      background: var(--lavender);
+      border-radius: 999px;
+      top: 210px;
+      right: 18%;
+      animation: floatY 8s ease-in-out infinite;
+      animation-delay: -3s;
+    }
+
+    .deco-diamond {
+      width: 28px;
+      height: 28px;
+      background: var(--green);
+      bottom: 22%;
+      right: 7%;
+      animation: spinSlow 9s linear infinite;
+    }
+
+    .deco-dots-sm {
+      width: 90px;
+      height: 90px;
+      background-image: radial-gradient(circle, var(--orange) 2.5px, transparent 2.5px);
+      background-size: 16px 16px;
+      top: 120px;
+      left: 5%;
+      opacity: 0.35;
+    }
+
+    @keyframes floatY {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-14px); }
+    }
+
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    header {
+      background: #ffffff;
+      border-bottom: 2px solid var(--border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    header h1 a {
+      text-decoration: none;
+      color: var(--purple);
+    }
+
+    nav {
+      display: flex;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      border: 1.5px solid transparent;
+      transition: all 0.2s;
+    }
+
+    nav a:hover {
+      color: var(--purple);
+      border-color: var(--purple);
+      background: #f5f0ff;
+    }
+
+    nav a.active {
+      color: var(--muted);
+      border-color: var(--border);
+      background: #f9fafb;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    main {
+      flex: 1;
+      padding: 4rem 2rem;
+      max-width: 720px;
+      margin: auto;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-decoration: none;
+      margin-bottom: 2rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      transition: all 0.2s;
+    }
+
+    .back-link:hover {
+      color: var(--purple);
+      border-color: var(--purple);
+      background: #f5f0ff;
+    }
+
+    main h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 2rem;
+      line-height: 1.25;
+    }
+
+    p {
+      margin-bottom: 0.9rem;
+      line-height: 1.75;
+      font-size: 0.925rem;
+      color: #3a3a4a;
+    }
+
+    h4 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 1.25rem 0 0.4rem;
+    }
+
+    ul {
+      padding-left: 1.25rem;
+      margin-bottom: 0.9rem;
+    }
+
+    ul li {
+      margin-bottom: 0.35rem;
+      line-height: 1.65;
+      font-size: 0.925rem;
+      color: #3a3a4a;
+    }
+
+    ul li strong {
+      color: var(--text);
+    }
+
+    ol {
+      padding-left: 1.25rem;
+      margin-bottom: 0.9rem;
+    }
+
+    ol li {
+      margin-bottom: 0.35rem;
+      line-height: 1.65;
+      font-size: 0.925rem;
+      color: #3a3a4a;
+    }
+
+    ol li strong {
+      color: var(--text);
+    }
+
+    .section-divider {
+      border: none;
+      border-top: 1.5px solid var(--border);
+      margin: 1.25rem 0;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-style: italic;
+      margin-bottom: 1.5rem;
+    }
+
+    code {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.85rem;
+      background: #f3f4f6;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      color: var(--purple);
+    }
+
+    footer {
+      border-top: 2px solid var(--border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    footer p {
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+
+    footer a {
+      color: var(--purple);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    footer a:hover {
+      color: var(--orange);
+    }
+
+    .social-icons {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .social-icons a {
+      color: var(--muted);
+      font-size: 1.15rem;
+      display: inline-block;
+      transition: color 0.2s;
+    }
+
+    .social-icons a:hover {
+      color: var(--purple);
+      animation: iconBounce 0.4s ease;
+    }
+
+    @keyframes iconBounce {
+      0%, 100% { transform: translateY(0); }
+      40%       { transform: translateY(-7px); }
+      70%       { transform: translateY(-2px); }
+    }
+
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+
+      footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .deco-ring, .deco-dots-sm { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="deco deco-blob"></div>
+<div class="deco deco-dots"></div>
+<div class="deco deco-ring"></div>
+<div class="deco deco-pill"></div>
+<div class="deco deco-diamond"></div>
+<div class="deco deco-dots-sm"></div>
+
+<header>
+  <h1><a href="../index.html">Build // Break // Blog</a></h1>
+  <nav>
+    <a href="../musings.html">Miscellaneous Musings</a>
+    <a href="../briefs.html" class="active">Research Briefs</a>
+    <a href="../projects.html">Projects</a>
+  </nav>
+</header>
+
+<main>
+  <a class="back-link" href="../briefs.html">&larr; All Research Briefs</a>
+
+  <h2>Sub-Millisecond Memory: How a 4-Slot Register Solves Multi-Turn Conversations</h2>
+
+  <p class="subtitle">Under a kilobyte. Under a millisecond. Entirely on your own hardware.</p>
+
+  <p>There was something really bothering me while I am trying to build my own personal assistant. I can very easily utilize available large language models but it means sending all my information to their servers, especially anything private pertaining to my house, routine etc.</p>
+
+  <p>That made me consider building a local-first intent routing system, something that can run on very simple hardware such as a PC or a Mac mini or even a Raspberry Pi, learns your personal vocabulary over time, and never phones home. The broader system is a topic for a future post. But while building it, I hit a specific problem that I think is worth talking about on its own: <strong>how do you maintain conversational context between turns when you're running on hardware that costs less than a nice dinner?</strong></p>
+
+  <p>Alexa solves this with millions of dollars of cloud infrastructure. I need to solve it with a dictionary and a timer.</p>
+
+  <h4>The Constraint That Changes Everything</h4>
+  <p>When you're building on-device, every design decision is filtered through three constraints that cloud-based systems don't have to think about:</p>
+  <ul>
+    <li><strong>Every byte matters.</strong> A Raspberry Pi 4 has 4GB of RAM shared across the entire system. Your context mechanism can't be a transformer model, it can't even be a large data structure. It needs to be trivially small.</li>
+    <li><strong>Every millisecond matters.</strong> The whole point of routing locally is speed. If your context system adds 50ms of overhead, you've defeated the purpose. The target is sub-millisecond. The user should never perceive that context resolution is happening at all.</li>
+    <li><strong>Every bit that leaves the device is a failure.</strong> This isn't just a philosophical position. If you're building a personal assistant that knows when you wake up, what medications you take, when you leave the house, and who visits, the aggregate of that data is extraordinarily intimate. The system should be able to understand "set it to 32 degrees" without that utterance ever touching a network interface.</li>
+  </ul>
+
+  <p>These constraints rule out the obvious solutions. You can't pack conversation history into an LLM prompt &mdash; that's a cloud call which also introduces latency. You can't run a dialogue state tracking model &mdash; those are too heavy for edge hardware. You can't even concatenate the last few turns and re-encode them &mdash; the encoder overhead adds up and the token budget is tight.</p>
+
+  <hr class="section-divider">
+
+  <h4>The Smallest Possible Solution</h4>
+  <p>I've been working on this routing system for a while now. This is something inspired by recent research on test-time learning and neural memory, designed to run entirely on-device. While building it, I kept circling back to this multi-turn context problem. No amount of clever routing helps if the system forgets the conversation between turns.</p>
+
+  <p>The instinct is to reach for something sophisticated &mdash; a dialogue state tracker, a context transformer, or a memory network. But every one of those violates the constraints above. So I asked myself a different question: what is the <em>minimum viable context</em> the system needs to resolve a follow-up utterance?</p>
+
+  <p>The answer turns out to be surprisingly small. You don't need the full conversation history. You don't need a semantic parse tree. You just need to remember what you did last. The domain, the device, the action, and any parameters &mdash; and make that available for the next turn.</p>
+
+  <p>So I built what I'm calling a <strong>context register</strong>, a small, structured, ephemeral state that sits between the user and the routing system and carries forward just enough context to resolve follow-up utterances.</p>
+
+  <p>The key word is <em>just enough</em>. This is not a dialogue state tracker. It's not a conversation history buffer. It's not a memory system. It's a register &mdash; like a CPU register &mdash; that holds a handful of resolved facts from the last successful action and makes them available for the next turn.</p>
+
+  <hr class="section-divider">
+
+  <h4>How It Works</h4>
+  <p>After every successfully routed command, the register captures four things:</p>
+  <ul>
+    <li><strong>The domain</strong> &mdash; what area of the system was involved (HVAC, security, entertainment, etc.)</li>
+    <li><strong>The device</strong> &mdash; what specific thing was acted on (living room AC, front gate, wine cellar)</li>
+    <li><strong>The action</strong> &mdash; what was done (turned on, locked, queried temperature)</li>
+    <li><strong>The parameters</strong> &mdash; any structured values that were resolved (temperature: 72, time: 7am)</li>
+  </ul>
+
+  <p>That's it. Four slots. When the next utterance comes in, the register prepends this context as a structured prefix before the utterance is processed. So the routing system doesn't see "set it to 65 degrees" in isolation. It sees, <em>the last thing we did was turn on the living room AC, and now the user is saying "set it to 65 degrees."</em> The ambiguity disappears.</p>
+
+  <p>This is a text-level enrichment, not an architectural change. The routing system's input is still a string. It just has a few extra words at the front. Which means it works with any encoder, any classifier, any downstream model. You don't have to redesign anything to get multi-turn context.</p>
+
+  <hr class="section-divider">
+
+  <h4>The Expiry Problem</h4>
+  <p>The tricky part isn't carrying context forward &mdash; it's knowing when to let it go.</p>
+
+  <p>If you turn on the AC and then immediately ask about the wine cellar temperature, the register needs to realize that the HVAC context is no longer relevant. If you turn on the AC and then walk away for ten minutes, the register shouldn't still be telling the system you're in the middle of an HVAC conversation when you come back asking about something else entirely.</p>
+
+  <p>The register clears itself under three conditions:</p>
+  <ol>
+    <li><strong>Too many turns pass</strong> without the context being relevant. If three turns go by and none of them seem related to what's in the register, it clears.</li>
+    <li><strong>The domain changes.</strong> If the system routes a command to a completely different domain than what's in the register, the old context is replaced.</li>
+    <li><strong>Too much time passes.</strong> A simple clock-based expiry catches the "walked away" case.</li>
+  </ol>
+  <p>Any one of these conditions triggers a clear and is configurable.</p>
+
+  <hr class="section-divider">
+
+  <h4>What It Isn't</h4>
+  <p>I want to be explicit about what the context register does <em>not</em> do, because the dialogue state tracking literature is deep and I'm not trying to compete with it.</p>
+
+  <p>The register does not maintain a full conversation history. It holds one turn's worth of resolved context. It does not do coreference resolution &mdash; it doesn't parse "it" and figure out what "it" refers to. Instead, it provides enough context that the downstream routing system can figure that out from the enriched input. It does not handle multi-intent utterances, e.g. "wake me up at 7am and start the coffee machine" is out of scope (for now). And it does not persist across sessions by default. It's ephemeral. When the session ends, the register is empty.</p>
+
+  <p>This is deliberate. The register's value comes from being tiny, fast, and disposable. A dictionary read to check the register takes less than a tenth of a millisecond. The entire state fits in under a kilobyte. It adds essentially zero overhead to the routing pipeline while solving a real and annoying problem.</p>
+
+  <hr class="section-divider">
+
+  <h4>Why Not Just Concatenate the Last Few Turns?</h4>
+  <p>A reasonable question. Why not just prepend the raw text of the last 2&ndash;3 conversational turns instead of maintaining a structured register?</p>
+
+  <p>A few reasons. First, raw conversation text is noisy. "I'm feeling hot" / "I've turned on the air conditioner for you" / "set it to 65 degrees" is a lot of tokens to push through an encoder when the useful information is just: <code>domain=HVAC, device=AC, action=power_on</code>. The register is a compressed, resolved summary. Higher signal, lower noise.</p>
+
+  <p>Second, the encoder has a token limit. MiniLM-L6-v2, which is a common lightweight encoder for this kind of system, handles about 256 tokens. Three turns of natural conversation can easily eat into that budget, especially if the assistant's responses are verbose. The register prefix is 10&ndash;20 tokens regardless of how long the conversation was.</p>
+
+  <p>Third, structured context is easier for the downstream model to learn from. When a routing model sees <code>[context: domain=HVAC, device=living_room_ac]</code> a hundred times alongside temperature-related follow-ups, it learns a clean association. When it sees variable-length raw conversation strings, the signal is harder to extract.</p>
+
+  <hr class="section-divider">
+
+  <h4>What's Next</h4>
+  <p>The context register is one component of a larger system I'm building for personalized intent routing. The broader goal is a routing layer that learns your specific vocabulary over time, runs entirely on-device, and progressively reduces its reliance on cloud LLMs as it gets to know you. More on that soon.</p>
+
+  <p>The register itself will be open-sourced under Apache 2.0. It's designed to be standalone &mdash; you don't need the rest of my system to use it. If you're building any kind of conversational assistant and you're tired of your system forgetting what "it" means, this might be useful to you.</p>
+
+  <p><em>If you're working on similar problems &mdash; on-device inference, personalized routing, lightweight NLU &mdash; I'd love to hear from you.</em></p>
+</main>
+
+<footer>
+  <p>Contact: <a href="mailto:premsantosh@protonmail.com">premsantosh@protonmail.com</a></p>
+  <div class="social-icons">
+    <a href="https://github.com/premsantosh" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+    <a href="https://linkedin.com/in/premsantosh" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+  </div>
+</footer>
+
+</body>
+</html>
