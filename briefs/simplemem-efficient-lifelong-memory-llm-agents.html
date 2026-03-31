@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SimpleMem: Efficient Lifelong Memory for LLM Agents — Prem Santosh</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --purple: #5b21b6;
+      --purple-light: #7c3aed;
+      --orange: #f97316;
+      --cyan: #06b6d4;
+      --yellow: #fde68a;
+      --green: #4ade80;
+      --lavender: #c4b5fd;
+      --text: #0f0f1a;
+      --muted: #71717a;
+      --border: #e5e7eb;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #ffffff;
+      color: var(--text);
+      line-height: 1.7;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .deco {
+      position: fixed;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .deco-blob {
+      width: 360px;
+      height: 360px;
+      background: var(--yellow);
+      border-radius: 62% 38% 46% 54% / 60% 44% 56% 40%;
+      top: -90px;
+      right: -90px;
+      animation: morphBlob 11s ease-in-out infinite;
+      opacity: 0.85;
+    }
+
+    @keyframes morphBlob {
+      0%, 100% { border-radius: 62% 38% 46% 54% / 60% 44% 56% 40%; }
+      33%       { border-radius: 40% 60% 58% 42% / 48% 60% 40% 52%; }
+      66%       { border-radius: 52% 48% 36% 64% / 42% 56% 44% 58%; }
+    }
+
+    .deco-dots {
+      width: 160px;
+      height: 160px;
+      background-image: radial-gradient(circle, var(--cyan) 2.5px, transparent 2.5px);
+      background-size: 18px 18px;
+      bottom: 60px;
+      left: 32px;
+      opacity: 0.45;
+    }
+
+    .deco-ring {
+      width: 88px;
+      height: 88px;
+      border: 7px solid var(--orange);
+      border-radius: 50%;
+      top: 42%;
+      left: -18px;
+      animation: floatY 7s ease-in-out infinite;
+    }
+
+    .deco-pill {
+      width: 72px;
+      height: 26px;
+      background: var(--lavender);
+      border-radius: 999px;
+      top: 210px;
+      right: 18%;
+      animation: floatY 8s ease-in-out infinite;
+      animation-delay: -3s;
+    }
+
+    .deco-diamond {
+      width: 28px;
+      height: 28px;
+      background: var(--green);
+      bottom: 22%;
+      right: 7%;
+      animation: spinSlow 9s linear infinite;
+    }
+
+    .deco-dots-sm {
+      width: 90px;
+      height: 90px;
+      background-image: radial-gradient(circle, var(--orange) 2.5px, transparent 2.5px);
+      background-size: 16px 16px;
+      top: 120px;
+      left: 5%;
+      opacity: 0.35;
+    }
+
+    @keyframes floatY {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-14px); }
+    }
+
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    header {
+      background: #ffffff;
+      border-bottom: 2px solid var(--border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    header h1 a {
+      text-decoration: none;
+      color: var(--purple);
+    }
+
+    nav {
+      display: flex;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      border: 1.5px solid transparent;
+      transition: all 0.2s;
+    }
+
+    nav a:hover {
+      color: var(--purple);
+      border-color: var(--purple);
+      background: #f5f0ff;
+    }
+
+    nav a.active {
+      color: var(--muted);
+      border-color: var(--border);
+      background: #f9fafb;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    main {
+      flex: 1;
+      padding: 4rem 2rem;
+      max-width: 720px;
+      margin: auto;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-decoration: none;
+      margin-bottom: 2rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      transition: all 0.2s;
+    }
+
+    .back-link:hover {
+      color: var(--purple);
+      border-color: var(--purple);
+      background: #f5f0ff;
+    }
+
+    main h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 2rem;
+      line-height: 1.25;
+    }
+
+    p {
+      margin-bottom: 0.9rem;
+      line-height: 1.75;
+      font-size: 0.925rem;
+      color: #3a3a4a;
+    }
+
+    h4 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 1.25rem 0 0.4rem;
+    }
+
+    ul {
+      padding-left: 1.25rem;
+      margin-bottom: 0.9rem;
+    }
+
+    ul li {
+      margin-bottom: 0.35rem;
+      line-height: 1.65;
+      font-size: 0.925rem;
+      color: #3a3a4a;
+    }
+
+    ul li strong {
+      color: var(--text);
+    }
+
+    ol {
+      padding-left: 1.25rem;
+      margin-bottom: 0.9rem;
+    }
+
+    ol li {
+      margin-bottom: 0.35rem;
+      line-height: 1.65;
+      font-size: 0.925rem;
+      color: #3a3a4a;
+    }
+
+    ol li strong {
+      color: var(--text);
+    }
+
+    code {
+      background: #f3f0ff;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+
+    .section-divider {
+      border: none;
+      border-top: 1.5px solid var(--border);
+      margin: 1.25rem 0;
+    }
+
+    .paper-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.825rem;
+      font-weight: 600;
+      color: var(--purple);
+      text-decoration: none;
+      margin-top: 1rem;
+      padding: 0.4rem 0.9rem;
+      border: 1.5px solid var(--purple);
+      border-radius: 999px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .paper-link:hover {
+      background: var(--purple);
+      color: #fff;
+    }
+
+    footer {
+      border-top: 2px solid var(--border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    footer p {
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+
+    footer a {
+      color: var(--purple);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    footer a:hover {
+      color: var(--orange);
+    }
+
+    .social-icons {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .social-icons a {
+      color: var(--muted);
+      font-size: 1.15rem;
+      display: inline-block;
+      transition: color 0.2s;
+    }
+
+    .social-icons a:hover {
+      color: var(--purple);
+      animation: iconBounce 0.4s ease;
+    }
+
+    @keyframes iconBounce {
+      0%, 100% { transform: translateY(0); }
+      40%       { transform: translateY(-7px); }
+      70%       { transform: translateY(-2px); }
+    }
+
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+
+      footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .deco-ring, .deco-dots-sm { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="deco deco-blob"></div>
+<div class="deco deco-dots"></div>
+<div class="deco deco-ring"></div>
+<div class="deco deco-pill"></div>
+<div class="deco deco-diamond"></div>
+<div class="deco deco-dots-sm"></div>
+
+<header>
+  <h1><a href="../index.html">Build // Break // Blog</a></h1>
+  <nav>
+    <a href="../musings.html">Miscellaneous Musings</a>
+    <a href="../briefs.html" class="active">Research Briefs</a>
+    <a href="../projects.html">Projects</a>
+  </nav>
+</header>
+
+<main>
+  <a class="back-link" href="../briefs.html">&larr; All Research Briefs</a>
+
+  <h2>SimpleMem: Efficient Lifelong Memory for LLM Agents</h2>
+
+  <p>This paper (Liu et al., UNC Chapel Hill) caught my attention because it's tackling the exact problem I've been thinking about: how do you build a memory system for an LLM agent that doesn't blow up in cost as conversations get longer?</p>
+
+  <h4>The Problem Statement</h4>
+  <p>Current approaches fall into two camps:</p>
+  <ol>
+    <li><strong>Full context extension</strong> &mdash; just keep everything in the context window. Works but you're paying for a ton of redundant tokens. Think about how much of a typical conversation is "Hey!", "Sounds good!", "Talk later!" &mdash; zero information content but you're paying for it on every inference.</li>
+    <li><strong>Iterative reasoning</strong> &mdash; use the LLM to filter what's relevant at query time. Better relevance but now you're doing multiple inference calls per query.</li>
+  </ol>
+  <p>Neither approach is efficient. The paper frames this as an information density problem &mdash; you want to maximize useful information per token.</p>
+
+  <hr class="section-divider">
+
+  <h4>The SimpleMem Architecture</h4>
+  <p>Three stage pipeline:</p>
+
+  <h4>Stage 1: Semantic Structured Compression</h4>
+  <p>This is where they filter and transform raw dialogue into compact "memory units" at write time.</p>
+  <p><strong>Semantic density gating</strong> &mdash; Use the LLM itself to judge whether a dialogue window contains useful information. If it's just greetings, discard it entirely. No explicit threshold tuning &mdash; they frame it as an instruction-following task where empty output = nothing worth remembering.</p>
+  <p><strong>De-linearization transformation</strong> &mdash; Convert messy dialogue into clean, self-contained facts. This includes:</p>
+  <ul>
+    <li>Coreference resolution ("my kids" &rarr; "Sarah's kids")</li>
+    <li>Temporal normalization ("yesterday" &rarr; "2023-07-01")</li>
+    <li>Atomization (break complex statements into individual facts)</li>
+  </ul>
+  <p>The output is context-independent memory units. Each one should be understandable without needing the surrounding conversation.</p>
+  <p>This feels like the right tradeoff. You're paying LLM tokens at write time, but you're doing it once per conversation turn. Compared to paying at read time where you might query the same memory hundreds of times.</p>
+
+  <h4>Stage 2: Online Semantic Synthesis</h4>
+  <p>This is basically compaction for memories. Instead of storing three separate entries like "User wants coffee", "User prefers oat milk", "User likes it hot" &mdash; you consolidate into: "User prefers hot coffee with oat milk".</p>
+  <p>They call it "online" because it happens during the write phase, not as a background job. Related memory units get merged before they're committed to storage.</p>
+  <p>The analogy to log compaction in Kafka or LSM compaction in databases is pretty direct here. You're trading write amplification for read efficiency. The difference is the "merge function" is semantic rather than key-based &mdash; you're merging things that are conceptually related, not just things with the same key.</p>
+
+  <h4>Stage 3: Intent-Aware Retrieval Planning</h4>
+  <p>This is the read path. Instead of fixed top-k retrieval, they use the LLM to analyze the query and generate a retrieval plan:</p>
+  <p><code>{q<sub>sem</sub>, q<sub>lex</sub>, q<sub>sym</sub>, d}</code> ~ P(q, H)</p>
+  <p>Where:</p>
+  <ul>
+    <li><code>q<sub>sem</sub></code> = semantic query (for embedding similarity)</li>
+    <li><code>q<sub>lex</sub></code> = lexical query (for BM25/keyword matching)</li>
+    <li><code>q<sub>sym</sub></code> = symbolic query (for metadata filtering)</li>
+    <li><code>d</code> = estimated depth/complexity</li>
+  </ul>
+  <p>The depth parameter <code>d</code> determines how many results to fetch. Simple lookups get small k, complex multi-hop questions get larger k.</p>
+  <p>They then query all three indexes in parallel and union the results with deduplication. No fancy fusion scoring &mdash; just set union. Simple but apparently effective.</p>
+
+  <hr class="section-divider">
+
+  <h4>The Multi-View Indexing</h4>
+  <p>This is the part I found most interesting from a data systems perspective. Each memory unit gets indexed three ways:</p>
+  <ol>
+    <li><strong>Semantic layer</strong> &mdash; Dense embeddings for fuzzy matching ("latte" matches "hot drink")</li>
+    <li><strong>Lexical layer</strong> &mdash; Sparse BM25 for exact keyword/entity matching</li>
+    <li><strong>Symbolic layer</strong> &mdash; Structured metadata (timestamps, entity types) for deterministic filtering</li>
+  </ol>
+  <p>This is basically the same insight that drove hybrid search in vector databases. Dense embeddings are great for semantic similarity but terrible for rare proper nouns or exact matches. Sparse retrieval (BM25) handles those cases well. And sometimes you just want a SQL WHERE clause on metadata.</p>
+  <p>The retrieval planner decides which combination of indexes to use based on the query. If someone asks "what did I do last Tuesday?", you probably want to lean heavy on the symbolic layer for the timestamp filter. If they ask "what's my favorite kind of coffee?", semantic similarity is more important.</p>
+
+  <hr class="section-divider">
+
+  <h4>Results</h4>
+  <p>The numbers are pretty compelling:</p>
+  <ul>
+    <li><strong>26.4% F1 improvement</strong> over Mem0 on LoCoMo benchmark</li>
+    <li><strong>30x token reduction</strong> vs full context approaches</li>
+    <li><strong>4x faster total time</strong> vs Mem0 (construction + retrieval)</li>
+    <li><strong>12x faster</strong> vs A-Mem</li>
+  </ul>
+  <p>The ablation study is useful too. Removing semantic compression hurts temporal reasoning the most (56.7% drop). Removing online synthesis hurts multi-hop reasoning (31.3% drop). Removing intent-aware retrieval hurts open-domain and single-hop queries.</p>
+  <p>Each component is doing something different and they're all contributing.</p>
+
+  <hr class="section-divider">
+
+  <h4>What I Like</h4>
+  <p><strong>Write-time investment pays off at read-time.</strong> This is a classic systems tradeoff and they're on the right side of it for this use case. Memories get written once but read many times. Spending tokens to clean and compress at write time amortizes over all future reads.</p>
+  <p><strong>The filtering happens at the source.</strong> In streaming systems we call this "filter early, filter often". Don't ingest garbage and then try to clean it up later. SimpleMem discards low-information dialogue before it ever hits the memory store.</p>
+  <p><strong>Adaptive retrieval based on query complexity.</strong> This is smarter than fixed top-k. A simple "what's my name?" query doesn't need 20 retrieved memories. A complex "compare what I said about project X in January vs March" might need more context.</p>
+  <p><strong>Multi-view indexing without complex fusion.</strong> They just do set union instead of trying to learn optimal weights for combining scores. Less tuning, fewer failure modes.</p>
+
+  <hr class="section-divider">
+
+  <h4>Questions I Have</h4>
+  <p><strong>How does the semantic gating work in practice?</strong> They're using the LLM to judge "is this informative?" but the examples in the paper are pretty clear-cut. What about borderline cases? What's the false positive/negative rate on information filtering?</p>
+  <p><strong>Compaction conflicts?</strong> When you're merging related memories, how do you handle contradictions? If I said I like oat milk last month but almond milk this week, what happens? The paper mentions prioritizing recent memories but doesn't go deep on conflict resolution.</p>
+  <p><strong>Cross-session synthesis.</strong> The online synthesis happens within a session. What about consolidating patterns across sessions? Like noticing that the user asks about coffee every morning. That seems like it needs a different mechanism.</p>
+  <p><strong>Cold start for retrieval planning.</strong> The intent-aware planner uses the LLM to estimate query complexity. But that's another LLM call before you even start retrieving. For simple queries, is that overhead worth it? Maybe you want a fast path for obviously simple queries.</p>
+
+  <a class="paper-link" href="https://arxiv.org/abs/2601.02553" target="_blank" rel="noopener">
+    <i class="fas fa-arrow-up-right-from-square"></i> Read the paper
+  </a>
+</main>
+
+<footer>
+  <p>Contact: <a href="mailto:premsantosh@protonmail.com">premsantosh@protonmail.com</a></p>
+  <div class="social-icons">
+    <a href="https://github.com/premsantosh" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+    <a href="https://linkedin.com/in/premsantosh" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+  </div>
+</footer>
+
+</body>
+</html>
