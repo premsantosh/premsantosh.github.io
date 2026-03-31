@@ -391,10 +391,10 @@
   <h4>The Problem Statement</h4>
   <p>Current approaches fall into two camps:</p>
   <ol>
-    <li><strong>Full context extension</strong> &mdash; just keep everything in the context window. Works but you're paying for a ton of redundant tokens. Think about how much of a typical conversation is "Hey!", "Sounds good!", "Talk later!" &mdash; zero information content but you're paying for it on every inference.</li>
-    <li><strong>Iterative reasoning</strong> &mdash; use the LLM to filter what's relevant at query time. Better relevance but now you're doing multiple inference calls per query.</li>
+    <li><strong>Full context extension</strong>, where you just keep everything in the context window. Works but you're paying for a ton of redundant tokens. Think about how much of a typical conversation is "Hey!", "Sounds good!", "Talk later!". Zero information content but you're paying for it on every inference.</li>
+    <li><strong>Iterative reasoning</strong>, where you use the LLM to filter what's relevant at query time. Better relevance but now you're doing multiple inference calls per query.</li>
   </ol>
-  <p>Neither approach is efficient. The paper frames this as an information density problem &mdash; you want to maximize useful information per token.</p>
+  <p>Neither approach is efficient. The paper frames this as an information density problem: you want to maximize useful information per token.</p>
 
   <hr class="section-divider">
 
@@ -403,8 +403,8 @@
 
   <h4>Stage 1: Semantic Structured Compression</h4>
   <p>This is where they filter and transform raw dialogue into compact "memory units" at write time.</p>
-  <p><strong>Semantic density gating</strong> &mdash; Use the LLM itself to judge whether a dialogue window contains useful information. If it's just greetings, discard it entirely. No explicit threshold tuning &mdash; they frame it as an instruction-following task where empty output = nothing worth remembering.</p>
-  <p><strong>De-linearization transformation</strong> &mdash; Convert messy dialogue into clean, self-contained facts. This includes:</p>
+  <p><strong>Semantic density gating</strong> uses the LLM itself to judge whether a dialogue window contains useful information. If it's just greetings, discard it entirely. No explicit threshold tuning either. They frame it as an instruction-following task where empty output = nothing worth remembering.</p>
+  <p><strong>De-linearization transformation</strong> converts messy dialogue into clean, self-contained facts. This includes:</p>
   <ul>
     <li>Coreference resolution ("my kids" &rarr; "Sarah's kids")</li>
     <li>Temporal normalization ("yesterday" &rarr; "2023-07-01")</li>
@@ -414,9 +414,9 @@
   <p>This feels like the right tradeoff. You're paying LLM tokens at write time, but you're doing it once per conversation turn. Compared to paying at read time where you might query the same memory hundreds of times.</p>
 
   <h4>Stage 2: Online Semantic Synthesis</h4>
-  <p>This is basically compaction for memories. Instead of storing three separate entries like "User wants coffee", "User prefers oat milk", "User likes it hot" &mdash; you consolidate into: "User prefers hot coffee with oat milk".</p>
+  <p>This is basically compaction for memories. Instead of storing three separate entries like "User wants coffee", "User prefers oat milk", "User likes it hot", you'd consolidate into: "User prefers hot coffee with oat milk".</p>
   <p>They call it "online" because it happens during the write phase, not as a background job. Related memory units get merged before they're committed to storage.</p>
-  <p>The analogy to log compaction in Kafka or LSM compaction in databases is pretty direct here. You're trading write amplification for read efficiency. The difference is the "merge function" is semantic rather than key-based &mdash; you're merging things that are conceptually related, not just things with the same key.</p>
+  <p>The analogy to log compaction in Kafka or LSM compaction in databases is pretty direct here. You're trading write amplification for read efficiency. The difference is the "merge function" is semantic rather than key-based. You're merging things that are conceptually related, not just things with the same key.</p>
 
   <h4>Stage 3: Intent-Aware Retrieval Planning</h4>
   <p>This is the read path. Instead of fixed top-k retrieval, they use the LLM to analyze the query and generate a retrieval plan:</p>
@@ -429,16 +429,16 @@
     <li><code>d</code> = estimated depth/complexity</li>
   </ul>
   <p>The depth parameter <code>d</code> determines how many results to fetch. Simple lookups get small k, complex multi-hop questions get larger k.</p>
-  <p>They then query all three indexes in parallel and union the results with deduplication. No fancy fusion scoring &mdash; just set union. Simple but apparently effective.</p>
+  <p>They then query all three indexes in parallel and union the results with deduplication. No fancy fusion scoring, just set union. Simple but apparently effective.</p>
 
   <hr class="section-divider">
 
   <h4>The Multi-View Indexing</h4>
   <p>This is the part I found most interesting from a data systems perspective. Each memory unit gets indexed three ways:</p>
   <ol>
-    <li><strong>Semantic layer</strong> &mdash; Dense embeddings for fuzzy matching ("latte" matches "hot drink")</li>
-    <li><strong>Lexical layer</strong> &mdash; Sparse BM25 for exact keyword/entity matching</li>
-    <li><strong>Symbolic layer</strong> &mdash; Structured metadata (timestamps, entity types) for deterministic filtering</li>
+    <li><strong>Semantic layer</strong>: dense embeddings for fuzzy matching ("latte" matches "hot drink")</li>
+    <li><strong>Lexical layer</strong>: sparse BM25 for exact keyword/entity matching</li>
+    <li><strong>Symbolic layer</strong>: structured metadata (timestamps, entity types) for deterministic filtering</li>
   </ol>
   <p>This is basically the same insight that drove hybrid search in vector databases. Dense embeddings are great for semantic similarity but terrible for rare proper nouns or exact matches. Sparse retrieval (BM25) handles those cases well. And sometimes you just want a SQL WHERE clause on metadata.</p>
   <p>The retrieval planner decides which combination of indexes to use based on the query. If someone asks "what did I do last Tuesday?", you probably want to lean heavy on the symbolic layer for the timestamp filter. If they ask "what's my favorite kind of coffee?", semantic similarity is more important.</p>
