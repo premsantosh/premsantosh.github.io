@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notes on Agent Memory Benchmarks — Prem Santosh</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --purple: #5b21b6;
+      --purple-light: #7c3aed;
+      --orange: #f97316;
+      --cyan: #06b6d4;
+      --yellow: #fde68a;
+      --green: #4ade80;
+      --lavender: #c4b5fd;
+      --text: #0f0f1a;
+      --muted: #71717a;
+      --border: #e5e7eb;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #ffffff;
+      color: var(--text);
+      line-height: 1.7;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .deco {
+      position: fixed;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .deco-blob {
+      width: 360px;
+      height: 360px;
+      background: var(--yellow);
+      border-radius: 62% 38% 46% 54% / 60% 44% 56% 40%;
+      top: -90px;
+      right: -90px;
+      animation: morphBlob 11s ease-in-out infinite;
+      opacity: 0.85;
+    }
+
+    @keyframes morphBlob {
+      0%, 100% { border-radius: 62% 38% 46% 54% / 60% 44% 56% 40%; }
+      33%       { border-radius: 40% 60% 58% 42% / 48% 60% 40% 52%; }
+      66%       { border-radius: 52% 48% 36% 64% / 42% 56% 44% 58%; }
+    }
+
+    .deco-dots {
+      width: 160px;
+      height: 160px;
+      background-image: radial-gradient(circle, var(--cyan) 2.5px, transparent 2.5px);
+      background-size: 18px 18px;
+      bottom: 60px;
+      left: 32px;
+      opacity: 0.45;
+    }
+
+    .deco-ring {
+      width: 88px;
+      height: 88px;
+      border: 7px solid var(--orange);
+      border-radius: 50%;
+      top: 42%;
+      left: -18px;
+      animation: floatY 7s ease-in-out infinite;
+    }
+
+    .deco-pill {
+      width: 72px;
+      height: 26px;
+      background: var(--lavender);
+      border-radius: 999px;
+      top: 210px;
+      right: 18%;
+      animation: floatY 8s ease-in-out infinite;
+      animation-delay: -3s;
+    }
+
+    .deco-diamond {
+      width: 28px;
+      height: 28px;
+      background: var(--green);
+      bottom: 22%;
+      right: 7%;
+      animation: spinSlow 9s linear infinite;
+    }
+
+    .deco-dots-sm {
+      width: 90px;
+      height: 90px;
+      background-image: radial-gradient(circle, var(--orange) 2.5px, transparent 2.5px);
+      background-size: 16px 16px;
+      top: 120px;
+      left: 5%;
+      opacity: 0.35;
+    }
+
+    @keyframes floatY {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-14px); }
+    }
+
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    header {
+      background: #ffffff;
+      border-bottom: 2px solid var(--border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    header h1 a {
+      text-decoration: none;
+      color: var(--purple);
+    }
+
+    nav {
+      display: flex;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      border: 1.5px solid transparent;
+      transition: all 0.2s;
+    }
+
+    nav a:hover {
+      color: var(--purple);
+      border-color: var(--purple);
+      background: #f5f0ff;
+    }
+
+    nav a.active {
+      color: var(--muted);
+      border-color: var(--border);
+      background: #f9fafb;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    main {
+      flex: 1;
+      padding: 4rem 2rem;
+      max-width: 720px;
+      margin: auto;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-decoration: none;
+      margin-bottom: 2rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      transition: all 0.2s;
+    }
+
+    .back-link:hover {
+      color: var(--purple);
+      border-color: var(--purple);
+      background: #f5f0ff;
+    }
+
+    main h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 2rem;
+      line-height: 1.25;
+    }
+
+    p {
+      margin-bottom: 0.9rem;
+      line-height: 1.75;
+      font-size: 0.925rem;
+      color: #3a3a4a;
+    }
+
+    h4 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 1.25rem 0 0.4rem;
+    }
+
+    ul {
+      padding-left: 1.25rem;
+      margin-bottom: 0.9rem;
+    }
+
+    ul li {
+      margin-bottom: 0.35rem;
+      line-height: 1.65;
+      font-size: 0.925rem;
+      color: #3a3a4a;
+    }
+
+    ul li strong {
+      color: var(--text);
+    }
+
+    ol {
+      padding-left: 1.25rem;
+      margin-bottom: 0.9rem;
+    }
+
+    ol li {
+      margin-bottom: 0.35rem;
+      line-height: 1.65;
+      font-size: 0.925rem;
+      color: #3a3a4a;
+    }
+
+    ol li strong {
+      color: var(--text);
+    }
+
+    code {
+      background: #f3f0ff;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+
+    .section-divider {
+      border: none;
+      border-top: 1.5px solid var(--border);
+      margin: 1.25rem 0;
+    }
+
+    .paper-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.825rem;
+      font-weight: 600;
+      color: var(--purple);
+      text-decoration: none;
+      margin-top: 1rem;
+      padding: 0.4rem 0.9rem;
+      border: 1.5px solid var(--purple);
+      border-radius: 999px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .paper-link:hover {
+      background: var(--purple);
+      color: #fff;
+    }
+
+    footer {
+      border-top: 2px solid var(--border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    footer p {
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+
+    footer a {
+      color: var(--purple);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    footer a:hover {
+      color: var(--orange);
+    }
+
+    .social-icons {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .social-icons a {
+      color: var(--muted);
+      font-size: 1.15rem;
+      display: inline-block;
+      transition: color 0.2s;
+    }
+
+    .social-icons a:hover {
+      color: var(--purple);
+      animation: iconBounce 0.4s ease;
+    }
+
+    @keyframes iconBounce {
+      0%, 100% { transform: translateY(0); }
+      40%       { transform: translateY(-7px); }
+      70%       { transform: translateY(-2px); }
+    }
+
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+
+      footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .deco-ring, .deco-dots-sm { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="deco deco-blob"></div>
+<div class="deco deco-dots"></div>
+<div class="deco deco-ring"></div>
+<div class="deco deco-pill"></div>
+<div class="deco deco-diamond"></div>
+<div class="deco deco-dots-sm"></div>
+
+<header>
+  <h1><a href="../index.html">Build // Break // Blog</a></h1>
+  <nav>
+    <a href="../musings.html">Miscellaneous Musings</a>
+    <a href="../briefs.html" class="active">Research Briefs</a>
+    <a href="../projects.html">Projects</a>
+  </nav>
+</header>
+
+<main>
+  <a class="back-link" href="../briefs.html">&larr; All Research Briefs</a>
+
+  <h2>Notes on Agent Memory Benchmarks</h2>
+
+  <p>I wrote about the big "Memory in the Age of AI Agents" survey (arXiv 2512.13564) a while back. The taxonomy stuff (forms / functions / dynamics) is fine but honestly the part I keep coming back to is Section 6, the benchmarks compilation. For anyone building an agent memory system, this is the practical question: how do you actually know your thing works?</p>
+
+  <p>I've been wrestling with this for Friday. It's easy to build a memory pipeline that looks impressive on demos and falls apart the moment you ask "but is it actually retrieving the right thing?". Benchmarks are how you stop fooling yourself.</p>
+
+  <p>So this post is my notes on the main benchmarks the survey lists, what they actually measure, and which ones I think are worth caring about if you're building real systems vs. writing papers.</p>
+
+  <hr class="section-divider">
+
+  <h4>Why Benchmarks for Memory Are Weird</h4>
+
+  <p>Quick aside before I get into the list. Memory benchmarks are a strange beast compared to most ML evals.</p>
+
+  <p>For something like image classification you have a held-out set, you run inference, you compute accuracy. Done. Memory is harder because:</p>
+
+  <ol>
+    <li><strong>The eval is path-dependent.</strong> What the system remembers at turn 100 depends on what happened at turns 1 through 99. You can't just shuffle test examples and rerun.</li>
+    <li><strong>Write-time and read-time are coupled.</strong> A bad ingestion choice at turn 5 will silently hurt retrieval at turn 50, but the failure mode looks like a retrieval bug.</li>
+    <li><strong>"Correct" is fuzzy.</strong> If the user said "I prefer oat milk" in session 3 and "I switched to almond" in session 7, what's the right answer in session 10? Depends entirely on whether you're testing "knowledge updates" or "factual recall".</li>
+  </ol>
+
+  <p>This is closer to evaluating a stateful streaming pipeline than a stateless model. You're not measuring a function, you're measuring a system over time. The benchmarks below handle this with various degrees of care.</p>
+
+  <hr class="section-divider">
+
+  <h4>LongMemEval (Wu et al., 2024)</h4>
+
+  <p>This is basically the de facto standard for conversational memory right now. Pretty much every memory paper from 2024 onwards reports LongMemEval numbers, including Mem0, Zep, Hindsight, MemMachine, A-Mem &mdash; everyone.</p>
+
+  <p>500 manually-written questions across five capabilities:</p>
+
+  <ul>
+    <li><strong>Information extraction</strong> &mdash; can you pull a fact someone mentioned earlier</li>
+    <li><strong>Multi-session reasoning</strong> &mdash; combining facts across sessions</li>
+    <li><strong>Temporal reasoning</strong> &mdash; "what was true as of last Tuesday"</li>
+    <li><strong>Knowledge updates</strong> &mdash; handling "I changed my mind" / "I moved to a new city"</li>
+    <li><strong>Abstention</strong> &mdash; knowing when you <em>don't</em> know something</li>
+  </ul>
+
+  <p>The clever bit is the haystack construction. They take a real Q+context pair and pad it with unrelated dialogue sessions to whatever length you want. So you can run the same questions at different effective context lengths and see where your system breaks down. Like a long-context stress test but for memory.</p>
+
+  <p>What I like: the abstention category. Most benchmarks reward you for guessing. Abstention specifically tests "do you know that you don't know", which in production matters way more than people admit.</p>
+
+  <p>What I don't like: the questions are <em>manually written</em>, which means 500 of them. Statistically thin. You can game it with prompt engineering, and I suspect a lot of the recent 90%+ numbers (Hindsight, MemMachine) are doing exactly that.</p>
+
+  <hr class="section-divider">
+
+  <h4>LoCoMo (Maharana et al., 2024)</h4>
+
+  <p>The other one everyone runs. 50 long-term chat histories, with questions covering single-hop, multi-hop, temporal, commonsense, and adversarial reasoning. Older than LongMemEval (came first) and somewhat narrower in what it tests.</p>
+
+  <p>If I'm being honest LoCoMo is mostly there because everyone already reports it. The benchmark itself isn't that great &mdash; questions can feel artificial, and the conversations were generated by an LLM persona-playing humans, which is a bit circular. But it's the only paired comparison number you can get against the existing papers, so it stays in the suite by inertia.</p>
+
+  <p>Same vibe as YCSB in database land &mdash; everyone knows it's not perfect but you publish numbers on it because that's what comparison requires.</p>
+
+  <hr class="section-divider">
+
+  <h4>StreamBench (Wu et al., 2024)</h4>
+
+  <p>This one's underrated. Tests <em>lifelong learning</em> in agents &mdash; can the agent get better at a task over time as it accumulates experience.</p>
+
+  <p>The setup: agent solves a stream of tasks one after another, has access to its own past attempts, and you measure whether accuracy improves over the stream. So you're not measuring "can it recall facts" but "can it learn from experience".</p>
+
+  <p>This maps directly to what I actually want from Friday. I don't really care if it can recall every fact from every conversation. I care if it gets better at <em>me</em> over time &mdash; learning my patterns, my preferences, my projects. StreamBench is the closest published thing to that.</p>
+
+  <p>The catch: the tasks in StreamBench are pretty narrow (mostly QA-style), so it's not a perfect proxy for "personal assistant gets smarter". But conceptually it's the right shape.</p>
+
+  <hr class="section-divider">
+
+  <h4>GAIA / XBench / BrowseComp</h4>
+
+  <p>These are the "deep research" benchmarks &mdash; complex multi-step problems where the agent has to plan, use tools, browse the web, and synthesize. They're not memory benchmarks per se, but the survey includes them because long-horizon agentic work <em>requires</em> working memory to track what you've already tried, what worked, what dead-ended.</p>
+
+  <p>If you're building an agent that does multi-step research tasks, the memory component shows up implicitly: better working memory = fewer redundant searches, fewer "wait I already looked at that" moments. So these end up in the memory eval mix.</p>
+
+  <p>For Friday these are mostly irrelevant &mdash; it's a personal assistant, not a research agent. But useful to know they exist if you ever swing in that direction.</p>
+
+  <hr class="section-divider">
+
+  <h4>SWE-bench Verified</h4>
+
+  <p>Code agents fixing real GitHub issues. The verified subset (curated by OpenAI) is the high-signal version &mdash; cases where the patches actually verify against test suites.</p>
+
+  <p>Why it shows up in a memory survey: the agent has to remember what files it's touched, what it's tried, what errors it hit. A coding agent without working memory just thrashes. The "memory" in this case isn't long-term across sessions, it's structured working memory within a single task.</p>
+
+  <p>If I had to pick one benchmark for "your agent's working memory is competent", SWE-bench Verified is probably it. It's hard, it's real, it doesn't have an easy gameable surface.</p>
+
+  <hr class="section-divider">
+
+  <h4>MEMENTO</h4>
+
+  <p>Multimodal embodied memory. Robot/embodied agent has to remember spatial and perceptual context across an interaction. Not directly relevant to most LLM agent work, but interesting as a pointer to where this is going &mdash; multimodal memory is going to matter once these things have eyes.</p>
+
+  <hr class="section-divider">
+
+  <h4>What Bothers Me About the Current Benchmark Landscape</h4>
+
+  <p><strong>Most benchmarks ignore the cost dimension.</strong> They report accuracy. They don't report how many tokens you spent at ingestion time, how much storage you accumulated, how slow retrieval got. For production this is everything. A memory system that gets 95% on LongMemEval but costs $0.50 per turn is worse than one that gets 85% at $0.005. Nobody publishes that table.</p>
+
+  <p><strong>Eval is single-shot, real usage is streaming.</strong> Benchmarks run a fixed conversation, ask questions at the end, score. In real life you're answering questions <em>while</em> the conversation continues, your memory is changing under you, and you have to handle race conditions between writes and reads. None of the benchmarks test this.</p>
+
+  <p><strong>The "memory" being tested is usually just retrieval.</strong> Almost every benchmark reduces to "did you pull the right span back into context". That's RAG with a few extra steps. The harder questions &mdash; did the system <em>consolidate</em> memories correctly, did it <em>forget</em> the right things, did it resolve contradictions &mdash; barely show up. Knowledge updates in LongMemEval is the closest thing and even that's limited.</p>
+
+  <p><strong>No benchmark tests temporal drift.</strong> What does your memory system do when a user's preferences change slowly over 6 months? When their job changes? When they say something today that contradicts something from 2 years ago that they no longer believe but never explicitly retracted? This is the hard problem and nobody's measuring it.</p>
+
+  <p>If you've worked on feature stores or streaming pipelines, all of this should sound familiar. It's the same gap between "correctness on a static test set" and "actually behaves right in production over time". Memory benchmarks are still in the "static test set" era.</p>
+
+  <hr class="section-divider">
+
+  <h4>What I'm Actually Doing for Friday</h4>
+
+  <p>For my own setup I'm running a hybrid:</p>
+
+  <ul>
+    <li><strong>LongMemEval-style synthetic</strong> for the core retrieval correctness loop. I generated my own version on top of my real conversation patterns rather than the published benchmark, because Friday's domain (me, my work, my projects) doesn't match what's in LongMemEval.</li>
+    <li><strong>A streaming-style eval</strong> where I replay a week of conversations and check that questions answered on day 7 still work after day 14's ingestion has happened. This catches the "good at first, decays over time" failure mode.</li>
+    <li><strong>A cost ledger</strong> &mdash; tokens per write, tokens per read, storage growth &mdash; tracked alongside accuracy. Because if it's not deployable, it doesn't matter how accurate it is.</li>
+  </ul>
+
+  <p>None of this is rigorous enough to publish. It's enough to stop me from shipping something broken. Which is the point.</p>
+
+  <hr class="section-divider">
+
+  <h4>Wrapping Up</h4>
+
+  <p>If you only have time to look at one benchmark from this survey, look at LongMemEval. It's the closest thing to a standard and it covers more of the failure modes than the others. If you want the lifelong learning angle, StreamBench. Everything else is either narrow or proxy.</p>
+
+  <p>The bigger takeaway from the survey though is that the benchmark situation in agent memory is roughly where database benchmarking was in 1995 &mdash; everyone is running their own thing, comparisons are apples-to-oranges, and the questions that matter most for production (cost, drift, consistency over time) aren't being measured. There's room here for someone to do for memory what TPC did for OLTP. Probably won't be me but I'm watching for it.</p>
+
+  <a class="paper-link" href="https://arxiv.org/abs/2512.13564" target="_blank" rel="noopener">
+    <i class="fas fa-arrow-up-right-from-square"></i> Read the paper
+  </a>
+</main>
+
+<footer>
+  <p>Contact: <a href="mailto:premsantosh@protonmail.com">premsantosh@protonmail.com</a></p>
+  <div class="social-icons">
+    <a href="https://github.com/premsantosh" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+    <a href="https://linkedin.com/in/premsantosh" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+  </div>
+</footer>
+
+</body>
+</html>
