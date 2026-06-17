@@ -1,4 +1,4 @@
-PORT ?= 8080
+PORT ?= 8085
 
 .PHONY: serve dev
 
