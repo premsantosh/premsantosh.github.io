@@ -1,1 +1,11 @@
 https://premsantosh.com/* https://www.premsantosh.com/:splat 301
+
+# Research briefs moved from standalone HTML files to markdown rendered by
+# brief.html. Keep the old per-post URLs working for bookmarks and search engines.
+/briefs/agent-memory-benchmarks.html /brief.html?p=agent-memory-benchmarks 301
+/briefs/cognitive-memory-distributed-systems.html /brief.html?p=cognitive-memory-distributed-systems 301
+/briefs/memory-llm-mechanisms-evaluation-evolution.html /brief.html?p=memory-llm-mechanisms-evaluation-evolution 301
+/briefs/miras-unifying-sequence-models.html /brief.html?p=miras-unifying-sequence-models 301
+/briefs/simplemem-efficient-lifelong-memory-llm-agents.html /brief.html?p=simplemem-efficient-lifelong-memory-llm-agents 301
+/briefs/sub-millisecond-memory-context-register.html /brief.html?p=sub-millisecond-memory-context-register 301
+/briefs/friday-reservation-agent.html /brief.html?p=friday-reservation-agent 301

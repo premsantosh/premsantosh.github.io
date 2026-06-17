@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Research Brief — Prem Santosh</title>
+  <meta name="description" content="" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --purple: #5b21b6;
+      --purple-light: #7c3aed;
+      --orange: #f97316;
+      --cyan: #06b6d4;
+      --yellow: #fde68a;
+      --green: #4ade80;
+      --lavender: #c4b5fd;
+      --text: #0f0f1a;
+      --muted: #71717a;
+      --border: #e5e7eb;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #ffffff;
+      color: var(--text);
+      line-height: 1.7;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .deco { position: fixed; pointer-events: none; z-index: 0; }
+    .deco-blob {
+      width: 360px; height: 360px;
+      background: var(--yellow);
+      border-radius: 62% 38% 46% 54% / 60% 44% 56% 40%;
+      top: -90px; right: -90px;
+      animation: morphBlob 11s ease-in-out infinite;
+      opacity: 0.85;
+    }
+    @keyframes morphBlob {
+      0%, 100% { border-radius: 62% 38% 46% 54% / 60% 44% 56% 40%; }
+      33%       { border-radius: 40% 60% 58% 42% / 48% 60% 40% 52%; }
+      66%       { border-radius: 52% 48% 36% 64% / 42% 56% 44% 58%; }
+    }
+    .deco-dots {
+      width: 160px; height: 160px;
+      background-image: radial-gradient(circle, var(--cyan) 2.5px, transparent 2.5px);
+      background-size: 18px 18px;
+      bottom: 60px; left: 32px; opacity: 0.45;
+    }
+    .deco-ring {
+      width: 88px; height: 88px;
+      border: 7px solid var(--orange); border-radius: 50%;
+      top: 42%; left: -18px;
+      animation: floatY 7s ease-in-out infinite;
+    }
+    .deco-pill {
+      width: 72px; height: 26px;
+      background: var(--lavender); border-radius: 999px;
+      top: 210px; right: 18%;
+      animation: floatY 8s ease-in-out infinite; animation-delay: -3s;
+    }
+    .deco-diamond {
+      width: 28px; height: 28px;
+      background: var(--green);
+      bottom: 22%; right: 7%;
+      animation: spinSlow 9s linear infinite;
+    }
+    .deco-dots-sm {
+      width: 90px; height: 90px;
+      background-image: radial-gradient(circle, var(--orange) 2.5px, transparent 2.5px);
+      background-size: 16px 16px;
+      top: 120px; left: 5%; opacity: 0.35;
+    }
+    @keyframes floatY {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-14px); }
+    }
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    header {
+      background: #ffffff;
+      border-bottom: 2px solid var(--border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    header h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    header h1 a { text-decoration: none; color: var(--purple); }
+    nav { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      border: 1.5px solid transparent;
+      transition: all 0.2s;
+    }
+    nav a:hover { color: var(--purple); border-color: var(--purple); background: #f5f0ff; }
+    nav a.active {
+      color: var(--muted);
+      border-color: var(--border);
+      background: #f9fafb;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    main {
+      flex: 1;
+      padding: 4rem 2rem;
+      max-width: 720px;
+      margin: auto;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-decoration: none;
+      margin-bottom: 2rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      transition: all 0.2s;
+    }
+    .back-link:hover { color: var(--purple); border-color: var(--purple); background: #f5f0ff; }
+
+    main h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 2rem;
+      line-height: 1.25;
+    }
+
+    p {
+      margin-bottom: 0.9rem;
+      line-height: 1.75;
+      font-size: 0.925rem;
+      color: #3a3a4a;
+    }
+
+    h4 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 1.25rem 0 0.4rem;
+    }
+
+    ul, ol { padding-left: 1.25rem; margin-bottom: 0.9rem; }
+    ul li, ol li {
+      margin-bottom: 0.35rem;
+      line-height: 1.65;
+      font-size: 0.925rem;
+      color: #3a3a4a;
+    }
+    ul li strong, ol li strong { color: var(--text); }
+
+    /* A bare markdown thematic break (---) renders the same as the
+       hand-written .section-divider used in the original posts. */
+    hr, .section-divider {
+      border: none;
+      border-top: 1.5px solid var(--border);
+      margin: 1.25rem 0;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-style: italic;
+      margin-bottom: 1.5rem;
+    }
+
+    code {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.85rem;
+      background: #f3f4f6;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    /* ── Figures, diagrams & image placeholders ── */
+    figure { margin: 1.75rem 0; }
+    figcaption {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-style: italic;
+      margin-top: 0.6rem;
+    }
+    .diagram {
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 1.1rem 1.2rem;
+      background: #fcfcfd;
+    }
+    .diagram svg { width: 100%; height: auto; display: block; }
+
+    figure img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 14px;
+    }
+
+    /* A wide figure breaks out of the 720px text column so wide, short
+       screenshots (e.g. a terminal grab) stay legible. */
+    .figure-wide {
+      width: 77vw;
+      max-width: 1728px;
+      margin-left: 50%;
+      transform: translateX(-50%);
+    }
+
+    /* A narrow figure for tall, portrait screenshots (e.g. a phone grab)
+       so they don't dominate the page. */
+    .figure-narrow {
+      width: 360px;
+      max-width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .img-placeholder {
+      border: 2px dashed var(--lavender);
+      border-radius: 14px;
+      background: #faf8ff;
+      padding: 2.75rem 1.5rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    .img-placeholder i {
+      font-size: 1.7rem;
+      color: var(--lavender);
+      display: block;
+      margin-bottom: 0.6rem;
+    }
+    .img-placeholder .ph-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: 0.68rem;
+      color: var(--purple);
+    }
+
+    .callout {
+      border-left: 4px solid var(--orange);
+      background: #fff7ed;
+      padding: 0.85rem 1.1rem;
+      border-radius: 0 10px 10px 0;
+      margin: 1.1rem 0;
+      font-size: 0.9rem;
+      color: #3a3a4a;
+    }
+    .callout strong { color: var(--text); }
+
+    .paper-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.825rem;
+      font-weight: 600;
+      color: var(--purple);
+      text-decoration: none;
+      margin-top: 1rem;
+      padding: 0.4rem 0.9rem;
+      border: 1.5px solid var(--purple);
+      border-radius: 999px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .paper-link:hover { background: var(--purple); color: #fff; }
+
+    footer {
+      border-top: 2px solid var(--border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+    footer p { color: var(--muted); font-size: 0.875rem; }
+    footer a { color: var(--purple); text-decoration: none; font-weight: 500; transition: color 0.2s; }
+    footer a:hover { color: var(--orange); }
+    .social-icons { display: flex; gap: 0.75rem; }
+    .social-icons a { color: var(--muted); font-size: 1.15rem; display: inline-block; transition: color 0.2s; }
+    .social-icons a:hover { color: var(--purple); animation: iconBounce 0.4s ease; }
+    @keyframes iconBounce {
+      0%, 100% { transform: translateY(0); }
+      40%       { transform: translateY(-7px); }
+      70%       { transform: translateY(-2px); }
+    }
+
+    @media (max-width: 600px) {
+      header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+      footer { flex-direction: column; align-items: flex-start; }
+      .deco-ring, .deco-dots-sm { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="deco deco-blob"></div>
+<div class="deco deco-dots"></div>
+<div class="deco deco-ring"></div>
+<div class="deco deco-pill"></div>
+<div class="deco deco-diamond"></div>
+<div class="deco deco-dots-sm"></div>
+
+<header>
+  <h1><a href="index.html">Build // Break // Blog</a></h1>
+  <nav>
+    <a href="musings.html">Miscellaneous Musings</a>
+    <a href="briefs.html" class="active">Research Briefs</a>
+    <a href="projects.html">Projects</a>
+  </nav>
+</header>
+
+<main id="post">
+  <a class="back-link" href="briefs.html">&larr; All Research Briefs</a>
+  <p>Loading…</p>
+</main>
+
+<footer>
+  <p>Contact: <a href="mailto:premsantosh@protonmail.com">premsantosh@protonmail.com</a></p>
+  <div class="social-icons">
+    <a href="https://github.com/premsantosh" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+    <a href="https://linkedin.com/in/premsantosh" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+  </div>
+</footer>
+
+<script src="assets/marked.min.js"></script>
+<script>
+  // Render a markdown post (posts/<slug>.md) inside the styled shell.
+  // Posts are plain markdown with a small "---" frontmatter block on top
+  // (title, optional subtitle / description / paper). Custom blocks
+  // (figures, callouts) are written as raw HTML inside the markdown.
+  (function () {
+    const main = document.getElementById('post');
+
+    // Slug from ?p=... — restricted to a safe filename charset.
+    const params = new URLSearchParams(window.location.search);
+    const slug = (params.get('p') || '').replace(/[^a-z0-9-]/gi, '');
+
+    function escapeHtml(s) {
+      return s.replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
+    }
+
+    function showError(msg) {
+      main.innerHTML =
+        '<a class="back-link" href="briefs.html">&larr; All Research Briefs</a>' +
+        '<h2>Post not found</h2><p>' + escapeHtml(msg) + '</p>';
+    }
+
+    // Minimal frontmatter parser: splits on the first ":" per line, so
+    // values may themselves contain colons (e.g. a title with a colon).
+    function parseFrontmatter(text) {
+      const meta = {};
+      let body = text;
+      const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
+      if (m) {
+        body = text.slice(m[0].length);
+        for (const line of m[1].split(/\r?\n/)) {
+          if (!line.trim()) continue;
+          const i = line.indexOf(':');
+          if (i === -1) continue;
+          meta[line.slice(0, i).trim()] = line.slice(i + 1).trim();
+        }
+      }
+      return { meta, body };
+    }
+
+    // Replace each <div class="diagram" data-svg="..."> with the inlined
+    // SVG, so the diagram inherits the page font (Space Grotesk). Loading
+    // the same SVG via <img> would sandbox it and drop that webfont.
+    function inlineDiagrams() {
+      document.querySelectorAll('.diagram[data-svg]').forEach(el => {
+        fetch(el.getAttribute('data-svg'))
+          .then(r => r.ok ? r.text() : Promise.reject())
+          .then(svg => { el.innerHTML = svg; })
+          .catch(() => {});
+      });
+    }
+
+    if (!slug) { showError('No post specified.'); return; }
+
+    fetch('posts/' + slug + '.md')
+      .then(r => { if (!r.ok) throw new Error('Could not load this post.'); return r.text(); })
+      .then(text => {
+        const { meta, body } = parseFrontmatter(text);
+        const title = meta.title || 'Research Brief';
+
+        document.title = title + ' — Prem Santosh';
+        if (meta.description) {
+          const d = document.querySelector('meta[name="description"]');
+          if (d) d.setAttribute('content', meta.description);
+        }
+
+        let html = '<a class="back-link" href="briefs.html">&larr; All Research Briefs</a>';
+        html += '<h2>' + escapeHtml(title) + '</h2>';
+        if (meta.subtitle) html += '<p class="subtitle">' + escapeHtml(meta.subtitle) + '</p>';
+        html += marked.parse(body);
+        if (meta.paper) {
+          html += '<a class="paper-link" href="' + escapeHtml(meta.paper) +
+            '" target="_blank" rel="noopener">' +
+            '<i class="fas fa-arrow-up-right-from-square"></i> Read the paper</a>';
+        }
+
+        main.innerHTML = html;
+        inlineDiagrams();
+      })
+      .catch(err => showError(err.message || 'Something went wrong.'));
+  })();
+</script>
+</body>
+</html>

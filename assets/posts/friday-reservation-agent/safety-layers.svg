@@ -1,0 +1,33 @@
+<svg viewBox="0 0 760 360" role="img" aria-label="Layered safety: kill switch, explicit confirmation, data minimization, single-use card, sandboxed fallback, then the booking">
+  <g font-family="'Space Grotesk', sans-serif" font-size="12">
+    <!-- guard bars -->
+    <rect x="20" y="8"   width="720" height="52" rx="10" fill="#f5f0ff" stroke="#5b21b6" stroke-width="1.8"/>
+    <rect x="20" y="8"   width="7"   height="52" fill="#5b21b6"/>
+    <text x="44" y="32" fill="#0f0f1a" font-weight="700">Kill switch</text>
+    <text x="44" y="49" fill="#3a3a4a" font-size="11.5">A research-only mode that turns off every real action, instantly.</text>
+
+    <rect x="20" y="72"  width="720" height="52" rx="10" fill="#fff7ed" stroke="#f97316" stroke-width="1.8"/>
+    <rect x="20" y="72"  width="7"   height="52" fill="#f97316"/>
+    <text x="44" y="96" fill="#0f0f1a" font-weight="700">Explicit confirmation</text>
+    <text x="44" y="113" fill="#3a3a4a" font-size="11.5">You approve the exact, resolved booking, not the vague phrase you started with.</text>
+
+    <rect x="20" y="136" width="720" height="52" rx="10" fill="#ecfeff" stroke="#06b6d4" stroke-width="1.8"/>
+    <rect x="20" y="136" width="7"   height="52" fill="#06b6d4"/>
+    <text x="44" y="160" fill="#0f0f1a" font-weight="700">Data minimization</text>
+    <text x="44" y="177" fill="#3a3a4a" font-size="11.5">Only the business name ever leaves your machine; personal details are purged when the task ends.</text>
+
+    <rect x="20" y="200" width="720" height="52" rx="10" fill="#f0fdf4" stroke="#4ade80" stroke-width="1.8"/>
+    <rect x="20" y="200" width="7"   height="52" fill="#22c55e"/>
+    <text x="44" y="224" fill="#0f0f1a" font-weight="700">Single-use card</text>
+    <text x="44" y="241" fill="#3a3a4a" font-size="11.5">Spend-capped, never your real card, never written to logs or shown to the AI.</text>
+
+    <rect x="20" y="264" width="720" height="52" rx="10" fill="#faf5ff" stroke="#7c3aed" stroke-width="1.8"/>
+    <rect x="20" y="264" width="7"   height="52" fill="#7c3aed"/>
+    <text x="44" y="288" fill="#0f0f1a" font-weight="700">Sandboxed fallback</text>
+    <text x="44" y="305" fill="#3a3a4a" font-size="11.5">If it ever leans on outside code, that code runs isolated, and only with your named consent.</text>
+
+    <!-- result -->
+    <rect x="250" y="328" width="260" height="26" rx="13" fill="#22c55e"/>
+    <text x="380" y="346" fill="#fff" text-anchor="middle" font-weight="700" font-size="12">&#10003;&#160;&#160;The booking happens</text>
+  </g>
+</svg>
