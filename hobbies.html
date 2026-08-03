@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Projects — Prem Santosh</title>
+  <title>Off the Clock — Prem Santosh</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -15,6 +15,7 @@
 
     :root {
       --purple: #5b21b6;
+      --purple-light: #7c3aed;
       --orange: #f97316;
       --cyan: #06b6d4;
       --yellow: #fde68a;
@@ -36,54 +37,84 @@
       overflow-x: hidden;
     }
 
-    .deco { position: fixed; pointer-events: none; z-index: 0; }
+    .deco {
+      position: fixed;
+      pointer-events: none;
+      z-index: 0;
+    }
+
     .deco-blob {
-      width: 360px; height: 360px;
+      width: 360px;
+      height: 360px;
       background: var(--yellow);
       border-radius: 62% 38% 46% 54% / 60% 44% 56% 40%;
-      top: -90px; right: -90px;
+      top: -90px;
+      right: -90px;
       animation: morphBlob 11s ease-in-out infinite;
       opacity: 0.85;
     }
+
     @keyframes morphBlob {
       0%, 100% { border-radius: 62% 38% 46% 54% / 60% 44% 56% 40%; }
       33%       { border-radius: 40% 60% 58% 42% / 48% 60% 40% 52%; }
       66%       { border-radius: 52% 48% 36% 64% / 42% 56% 44% 58%; }
     }
+
     .deco-dots {
-      width: 160px; height: 160px;
+      width: 160px;
+      height: 160px;
       background-image: radial-gradient(circle, var(--cyan) 2.5px, transparent 2.5px);
       background-size: 18px 18px;
-      bottom: 60px; left: 32px; opacity: 0.45;
+      bottom: 60px;
+      left: 32px;
+      opacity: 0.45;
     }
+
     .deco-ring {
-      width: 88px; height: 88px;
-      border: 7px solid var(--orange); border-radius: 50%;
-      top: 42%; left: -18px;
+      width: 88px;
+      height: 88px;
+      border: 7px solid var(--orange);
+      border-radius: 50%;
+      top: 42%;
+      left: -18px;
       animation: floatY 7s ease-in-out infinite;
     }
+
     .deco-pill {
-      width: 72px; height: 26px;
-      background: var(--lavender); border-radius: 999px;
-      top: 210px; right: 18%;
-      animation: floatY 8s ease-in-out infinite; animation-delay: -3s;
+      width: 72px;
+      height: 26px;
+      background: var(--lavender);
+      border-radius: 999px;
+      top: 210px;
+      right: 18%;
+      animation: floatY 8s ease-in-out infinite;
+      animation-delay: -3s;
     }
+
     .deco-diamond {
-      width: 28px; height: 28px;
+      width: 28px;
+      height: 28px;
       background: var(--green);
-      bottom: 22%; right: 7%;
+      bottom: 22%;
+      right: 7%;
       animation: spinSlow 9s linear infinite;
     }
+
     .deco-dots-sm {
-      width: 90px; height: 90px;
+      width: 90px;
+      height: 90px;
       background-image: radial-gradient(circle, var(--orange) 2.5px, transparent 2.5px);
       background-size: 16px 16px;
-      top: 120px; left: 5%; opacity: 0.35;
+      top: 120px;
+      left: 5%;
+      opacity: 0.35;
     }
+
     @keyframes floatY {
       0%, 100% { transform: translateY(0); }
       50%       { transform: translateY(-14px); }
     }
+
     @keyframes spinSlow {
       from { transform: rotate(0deg); }
       to   { transform: rotate(360deg); }
@@ -101,14 +132,25 @@
       top: 0;
       z-index: 100;
     }
+
     header h1 {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 1.35rem;
       font-weight: 700;
       letter-spacing: -0.02em;
     }
-    header h1 a { text-decoration: none; color: var(--purple); }
-    nav { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+
+    header h1 a {
+      text-decoration: none;
+      color: var(--purple);
+    }
+
+    nav {
+      display: flex;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+    }
+
     nav a {
       color: var(--muted);
       text-decoration: none;
@@ -118,7 +160,13 @@
       border: 1.5px solid transparent;
       transition: all 0.2s;
     }
-    nav a:hover { color: var(--purple); border-color: var(--purple); background: #f5f0ff; }
+
+    nav a:hover {
+      color: var(--purple);
+      border-color: var(--purple);
+      background: #f5f0ff;
+    }
+
     nav a.active {
       color: var(--muted);
       border-color: var(--border);
@@ -130,7 +178,7 @@
     main {
       flex: 1;
       padding: 4rem 2rem;
-      max-width: 900px;
+      max-width: 720px;
       margin: auto;
       width: 100%;
       position: relative;
@@ -143,87 +191,61 @@
       font-weight: 700;
       letter-spacing: -0.03em;
       color: var(--purple);
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.75rem;
     }
 
-    .page-subtitle {
-      font-size: 1rem;
+    .intro {
       color: var(--muted);
-      margin-bottom: 2.5rem;
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
     }
 
-    /* ── Project cards ── */
-    .projects-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    article {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    article:hover {
+      transform: translate(-4px, -4px);
+      box-shadow: 6px 6px 0 var(--purple);
+      border-color: var(--purple);
+    }
+
+    article h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       gap: 1rem;
     }
 
-    .project-card {
-      background: #ffffff;
-      border: 2px solid var(--border);
-      border-top: 4px solid var(--card-color);
-      border-radius: 14px;
-      padding: 1.4rem 1.4rem 1.2rem;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-      display: flex;
-      flex-direction: column;
+    article h3 .arrow-icon {
+      font-size: 0.75rem;
+      color: var(--purple);
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
     }
-    .project-card:hover {
-      transform: translate(-4px, -4px);
-      box-shadow: 6px 6px 0 var(--card-color);
-      border-color: var(--card-color);
-      border-top-color: var(--card-color);
-    }
-    .card-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      color: var(--text);
-    }
-    .card-desc {
-      font-size: 0.875rem;
-      color: var(--muted);
-      line-height: 1.65;
-      flex: 1;
-      margin-bottom: 1rem;
-    }
-    .tech-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
-    .tag {
-      font-size: 0.7rem;
-      padding: 0.2rem 0.55rem;
-      border-radius: 999px;
-      background: #f3f4f6;
-      color: #4b5563;
-      font-family: 'Space Grotesk', monospace;
-      font-weight: 500;
-    }
-    .card-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--card-color);
-      text-decoration: none;
-      margin-top: 1rem;
-      transition: opacity 0.2s;
-    }
-    .card-link:hover { opacity: 0.7; }
 
-    .wip-badge {
-      display: inline-block;
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--orange);
-      background: #fff7ed;
-      border: 1.5px solid #fed7aa;
-      border-radius: 999px;
-      padding: 0.15rem 0.55rem;
-      margin-bottom: 0.6rem;
+    article:hover h3 .arrow-icon {
+      opacity: 1;
+      transform: translateX(3px);
+    }
+
+    .preview {
+      color: var(--muted);
+      font-size: 0.875rem;
+      margin-top: 0.4rem;
     }
 
     footer {
@@ -237,17 +259,40 @@
       position: relative;
       z-index: 1;
     }
-    footer p { color: var(--muted); font-size: 0.875rem; }
-    footer a { color: var(--purple); text-decoration: none; font-weight: 500; transition: color 0.2s; }
-    footer a:hover { color: var(--orange); }
-    .social-icons { display: flex; gap: 0.75rem; }
+
+    footer p {
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+
+    footer a {
+      color: var(--purple);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    footer a:hover {
+      color: var(--orange);
+    }
+
+    .social-icons {
+      display: flex;
+      gap: 0.75rem;
+    }
+
     .social-icons a {
       color: var(--muted);
       font-size: 1.15rem;
       display: inline-block;
       transition: color 0.2s;
     }
-    .social-icons a:hover { color: var(--purple); animation: iconBounce 0.4s ease; }
+
+    .social-icons a:hover {
+      color: var(--purple);
+      animation: iconBounce 0.4s ease;
+    }
+
     @keyframes iconBounce {
       0%, 100% { transform: translateY(0); }
       40%       { transform: translateY(-7px); }
@@ -255,8 +300,17 @@
     }
 
     @media (max-width: 600px) {
-      header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
-      footer { flex-direction: column; align-items: flex-start; }
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+
+      footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
       .deco-ring, .deco-dots-sm { display: none; }
     }
   </style>
@@ -275,45 +329,19 @@
   <nav>
     <a href="musings.html">Miscellaneous Musings</a>
     <a href="briefs.html">Research Briefs</a>
-    <a href="projects.html" class="active">Projects</a>
-    <a href="hobbies.html">Off the Clock</a>
+    <a href="projects.html">Projects</a>
+    <a href="hobbies.html" class="active">Off the Clock</a>
   </nav>
 </header>
 
 <main>
-  <h2>Projects</h2>
-  <p class="page-subtitle">Things I've built outside of work.</p>
+  <h2>Off the Clock</h2>
+  <p class="intro">Cooking, cocktails, games, hikes — things I make and do when I'm off the clock.</p>
 
-  <div class="projects-grid">
-      <div class="project-card" style="--card-color: #06b6d4">
-        <span class="wip-badge">Work in Progress</span>
-        <div class="card-title">Friday</div>
-        <div class="card-desc">A modular, extensible AI voice assistant inspired by Iron Man's Jarvis. Supports a full voice pipeline — wake word detection → speech-to-text → LLM → text-to-speech — with a configurable personality system (sarcasm, warmth, wit) and pluggable providers for LLMs, TTS, and STT.</div>
-        <div class="tech-tags">
-          <span class="tag">Python</span>
-          <span class="tag">Claude</span>
-          <span class="tag">Whisper</span>
-          <span class="tag">ElevenLabs</span>
-          <span class="tag">Home Assistant</span>
-        </div>
-        <a class="card-link" href="https://github.com/premsantosh/Friday" target="_blank" rel="noopener">
-          <i class="fab fa-github"></i> View on GitHub
-        </a>
-      </div>
-
-      <div class="project-card" style="--card-color: #f97316">
-        <div class="card-title">Turnstile Context Register</div>
-        <div class="card-desc">A lightweight Python module that maintains conversational context across turns in an intent routing pipeline. Captures resolved domain, device, action, and parameter information after each interaction, then prepends structured context to help the router handle follow-ups like "set it to 65 degrees" or "turn that off too."</div>
-        <div class="tech-tags">
-          <span class="tag">Python</span>
-          <span class="tag">Duckling</span>
-          <span class="tag">pytest</span>
-        </div>
-        <a class="card-link" href="https://github.com/premsantosh/turnstile-ctx" target="_blank" rel="noopener">
-          <i class="fab fa-github"></i> View on GitHub
-        </a>
-      </div>
-  </div>
+  <article onclick="window.location='hobby.html?p=negima-yakitori-dinner'">
+    <h3>Negima Night: A Home-Cooked Japanese Dinner <span class="arrow-icon"><i class="fas fa-arrow-right"></i></span></h3>
+    <div class="preview">A home-cooked Japanese dinner: negima yakitori with tare glaze, miso soup, and rice-wine pickled cucumbers with edible flowers.</div>
+  </article>
 </main>
 
 <footer>
