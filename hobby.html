@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Research Brief — Prem Santosh</title>
+  <title>Off the Clock — Prem Santosh</title>
   <meta name="description" content="" />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -348,14 +348,14 @@
   <h1><a href="index.html">Build // Break // Blog</a></h1>
   <nav>
     <a href="musings.html">Miscellaneous Musings</a>
-    <a href="briefs.html" class="active">Research Briefs</a>
+    <a href="briefs.html">Research Briefs</a>
     <a href="projects.html">Projects</a>
-    <a href="hobbies.html">Off the Clock</a>
+    <a href="hobbies.html" class="active">Off the Clock</a>
   </nav>
 </header>
 
 <main id="post">
-  <a class="back-link" href="briefs.html">&larr; All Research Briefs</a>
+  <a class="back-link" href="hobbies.html">&larr; All Off the Clock posts</a>
   <p>Loading…</p>
 </main>
 
@@ -369,7 +369,7 @@
 
 <script src="assets/marked.min.js"></script>
 <script>
-  // Render a markdown post (posts/<slug>.md) inside the styled shell.
+  // Render a markdown post (hobby-posts/<slug>.md) inside the styled shell.
   // Posts are plain markdown with a small "---" frontmatter block on top
   // (title, optional subtitle / description / paper). Custom blocks
   // (figures, callouts) are written as raw HTML inside the markdown.
@@ -388,7 +388,7 @@
 
     function showError(msg) {
       main.innerHTML =
-        '<a class="back-link" href="briefs.html">&larr; All Research Briefs</a>' +
+        '<a class="back-link" href="hobbies.html">&larr; All Off the Clock posts</a>' +
         '<h2>Post not found</h2><p>' + escapeHtml(msg) + '</p>';
     }
 
@@ -424,11 +424,11 @@
 
     if (!slug) { showError('No post specified.'); return; }
 
-    fetch('posts/' + slug + '.md')
+    fetch('hobby-posts/' + slug + '.md')
       .then(r => { if (!r.ok) throw new Error('Could not load this post.'); return r.text(); })
       .then(text => {
         const { meta, body } = parseFrontmatter(text);
-        const title = meta.title || 'Research Brief';
+        const title = meta.title || 'Off the Clock';
 
         document.title = title + ' — Prem Santosh';
         if (meta.description) {
@@ -436,7 +436,7 @@
           if (d) d.setAttribute('content', meta.description);
         }
 
-        let html = '<a class="back-link" href="briefs.html">&larr; All Research Briefs</a>';
+        let html = '<a class="back-link" href="hobbies.html">&larr; All Off the Clock posts</a>';
         html += '<h2>' + escapeHtml(title) + '</h2>';
         if (meta.subtitle) html += '<p class="subtitle">' + escapeHtml(meta.subtitle) + '</p>';
         html += marked.parse(body);

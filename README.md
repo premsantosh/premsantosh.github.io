@@ -8,6 +8,7 @@ Personal website and blog for Prem Santosh Udaya Shankar.
 - **Miscellaneous Musings** (`musings.html`) — Short-form thoughts and opinions
 - **Research Briefs** (`briefs.html`) — Concise technical research write-ups
 - **Projects** (`projects.html`) — Personal side projects
+- **Off the Clock** (`hobbies.html`) — Hobby posts: cooking, cocktails, games, hikes, and other off-hours pursuits
 
 ## Stack
 
@@ -72,6 +73,18 @@ For hand-built SVG diagrams that should pick up the site font and the framed
 ```
 
 The renderer inlines `data-svg` diagrams so the SVG text uses the page's webfont.
+
+## Off the Clock (hobby posts)
+
+Hobby posts work exactly like research briefs, with their own parallel set of files:
+
+- `hobby-posts/<slug>.md` — the post (same frontmatter format; `paper` is unused here).
+- `assets/hobby-posts/<slug>/` — photos for that post (one folder per post).
+- `hobby.html` — the renderer (`hobby.html?p=<slug>`).
+- `hobbies.html` — the index/listing page; add one `<article>` card per post.
+
+Photos are committed pre-resized (~1600px wide, JPEG quality ~80) to keep the
+repo and page weight sensible.
 
 ## Local Development
 
